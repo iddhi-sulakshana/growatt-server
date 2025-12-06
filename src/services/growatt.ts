@@ -15,6 +15,12 @@ import type {
 import GROWATTTYPE from "../types/growatt";
 import winston from "winston";
 
+type QueueItem<T> = {
+    resolve: (value: T | PromiseLike<T>) => void;
+    reject: (reason?: any) => void;
+    requestFn: () => Promise<T>;
+};
+
 export default class Growatt {
     private axios: AxiosInstance;
     private index: "index" | "indexbC" = "index";
@@ -23,6 +29,11 @@ export default class Growatt {
     private sessionId: string | null = null;
     private plantId: string | null = null;
     private device: Device | null = null;
+    private queue: QueueItem<any>[] = [];
+    private processingQueue: boolean = false;
+    private refreshInterval: NodeJS.Timeout | null = null;
+    private loginRetryCount: number = 0;
+    private readonly MAX_LOGIN_RETRIES: number = 5;
 
     constructor() {
         this.axios = Axios.create({
@@ -34,10 +45,12 @@ export default class Growatt {
                 Connection: "keep-alive",
             },
         });
+        this.startHourlyRefresh();
     }
 
     public async login() {
         this.reset();
+        this.loginRetryCount = 0;
 
         const params = new URLSearchParams({
             account: ENV.GROWATT_USERNAME,
@@ -63,8 +76,8 @@ export default class Growatt {
         this.setSessionId();
         winston.info("Growatt: Login successful");
 
-        // Get plant list and get the first plant id
-        const plantList = await this.getPlantList();
+        // Get plant list and get the first plant id (bypass queue during login)
+        const plantList = await this._getPlantList();
         if (plantList.length === 0) {
             winston.error("Growatt: Login successful: No plant found");
             return;
@@ -72,8 +85,8 @@ export default class Growatt {
         this.plantId = plantList[0].id;
         winston.info("Growatt: Plant Successfully Selected: " + this.plantId);
 
-        // Get the devices of the plant and get the first device
-        const devices = await this.getDevicesOfPlant(this.plantId);
+        // Get the devices of the plant and get the first device (bypass queue during login)
+        const devices = await this._getDevicesOfPlant(this.plantId);
         if (devices.length === 0) {
             winston.error("Growatt: Login successful: No device found");
             return;
@@ -95,7 +108,19 @@ export default class Growatt {
             headers: this.makeCallHeaders(),
         });
         this.reset();
+        this.loginRetryCount = 0;
         winston.info("Growatt: Logout successful");
+    }
+
+    public async relogin(): Promise<void> {
+        winston.info("Growatt: Manual re-login initiated");
+        await this.logout();
+        await this.login();
+        if (this.connected) {
+            winston.info("Growatt: Manual re-login successful");
+        } else {
+            winston.error("Growatt: Manual re-login failed");
+        }
     }
 
     public isConnected(): boolean {
@@ -111,6 +136,10 @@ export default class Growatt {
     }
 
     public async getPlantList(): Promise<Plant[]> {
+        return this.enqueueRequest(() => this._getPlantList());
+    }
+
+    private async _getPlantList(): Promise<Plant[]> {
         try {
             const response = await this.axios.post(
                 `/${this.index}/getPlantListTitle`,
@@ -131,6 +160,10 @@ export default class Growatt {
     }
 
     public async getPlantData(plantId: string): Promise<PlantDetails | null> {
+        return this.enqueueRequest(() => this._getPlantData(plantId));
+    }
+
+    private async _getPlantData(plantId: string): Promise<PlantDetails | null> {
         try {
             const params = new URLSearchParams({ plantId });
             const response = await this.axios.post(
@@ -162,6 +195,12 @@ export default class Growatt {
     }
 
     public async getWeatherByPlantId(plantId: string): Promise<Weather | null> {
+        return this.enqueueRequest(() => this._getWeatherByPlantId(plantId));
+    }
+
+    private async _getWeatherByPlantId(
+        plantId: string
+    ): Promise<Weather | null> {
         try {
             const params = new URLSearchParams({ plantId });
             const response = await this.axios.post(
@@ -192,6 +231,22 @@ export default class Growatt {
     }
 
     public async getNewPlantFaultLog({
+        plantId,
+        date = "",
+        deviceSn = "",
+        toPageNum = 1,
+    }: {
+        plantId: string;
+        date: string;
+        deviceSn: string;
+        toPageNum: number;
+    }): Promise<FaultLog | null> {
+        return this.enqueueRequest(() =>
+            this._getNewPlantFaultLog({ plantId, date, deviceSn, toPageNum })
+        );
+    }
+
+    private async _getNewPlantFaultLog({
         plantId,
         date = "",
         deviceSn = "",
@@ -237,6 +292,10 @@ export default class Growatt {
     }
 
     public async getDevicesOfPlant(plantId: string): Promise<Devices> {
+        return this.enqueueRequest(() => this._getDevicesOfPlant(plantId));
+    }
+
+    private async _getDevicesOfPlant(plantId: string): Promise<Devices> {
         try {
             const params = new URLSearchParams({ plantId });
             const response = await this.axios.post(
@@ -281,6 +340,18 @@ export default class Growatt {
     }
 
     public async getPlantDeviceTotalData({
+        plantId,
+        device,
+    }: {
+        plantId: string;
+        device: Device;
+    }): Promise<DeviceTotalData | null> {
+        return this.enqueueRequest(() =>
+            this._getPlantDeviceTotalData({ plantId, device })
+        );
+    }
+
+    private async _getPlantDeviceTotalData({
         plantId,
         device,
     }: {
@@ -335,6 +406,18 @@ export default class Growatt {
     }
 
     public async getPlantDeviceStatusData({
+        plantId,
+        device,
+    }: {
+        plantId: string;
+        device: Device;
+    }): Promise<DeviceStatusData | null> {
+        return this.enqueueRequest(() =>
+            this._getPlantDeviceStatusData({ plantId, device })
+        );
+    }
+
+    private async _getPlantDeviceStatusData({
         plantId,
         device,
     }: {
@@ -401,6 +484,30 @@ export default class Growatt {
         endDate: Date;
         start: number;
     }): Promise<DeviceHistoryDataList | null> {
+        return this.enqueueRequest(() =>
+            this._getPlantDeviceHistoryData({
+                plantId,
+                device,
+                startDate,
+                endDate,
+                start,
+            })
+        );
+    }
+
+    private async _getPlantDeviceHistoryData({
+        plantId,
+        device,
+        startDate,
+        endDate,
+        start,
+    }: {
+        plantId: string;
+        device: Device;
+        startDate: Date;
+        endDate: Date;
+        start: number;
+    }): Promise<DeviceHistoryDataList | null> {
         try {
             const serialNo = this.getSerialNoOfDevice(device);
             const splitId = serialNo.split("_");
@@ -435,6 +542,147 @@ export default class Growatt {
                 "Growatt: Get plant device history data failed: " + error
             );
             return null;
+        }
+    }
+
+    // Queue and Connection Management Methods
+
+    private async enqueueRequest<T>(requestFn: () => Promise<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            this.queue.push({ resolve, reject, requestFn });
+            this.processQueue();
+        });
+    }
+
+    private async processQueue(): Promise<void> {
+        if (this.processingQueue || this.queue.length === 0) {
+            return;
+        }
+
+        this.processingQueue = true;
+
+        while (this.queue.length > 0) {
+            const item = this.queue.shift();
+            if (!item) continue;
+
+            try {
+                // Check connection before processing each request
+                if (!this.connected) {
+                    await this.loginWithRetry();
+                }
+
+                // Execute the request
+                const result = await item.requestFn();
+                item.resolve(result);
+            } catch (error) {
+                item.reject(error);
+            }
+        }
+
+        this.processingQueue = false;
+    }
+
+    private async loginWithRetry(
+        maxRetries: number = this.MAX_LOGIN_RETRIES
+    ): Promise<void> {
+        let attempt = 0;
+        while (attempt < maxRetries) {
+            try {
+                this.reset();
+                this.loginRetryCount = attempt;
+
+                const params = new URLSearchParams({
+                    account: ENV.GROWATT_USERNAME,
+                    password: "",
+                    validateCode: "",
+                    isReadPact: "0",
+                    passwordCrc: MD5(ENV.GROWATT_PASSWORD),
+                });
+
+                const response = await this.axios.post(
+                    "/login",
+                    params.toString()
+                );
+                if (response.status !== 200 || !response.data) {
+                    throw new Error("Growatt: Login failed: Unknown error");
+                }
+                if (response.data.result !== 1) {
+                    throw new Error(
+                        "Growatt: Login failed: " +
+                            (response.data.msg || "Unknown error")
+                    );
+                }
+
+                this.connected = true;
+                this.cookie = response.headers["set-cookie"]?.join(";") || "";
+                this.setSessionId();
+                this.loginRetryCount = 0;
+                winston.info("Growatt: Login successful (with retry)");
+                return;
+            } catch (error: any) {
+                attempt++;
+                if (attempt >= maxRetries) {
+                    winston.error(
+                        `Growatt: Login failed after ${maxRetries} attempts: ${
+                            error.message || error
+                        }`
+                    );
+                    throw error;
+                }
+
+                // Exponential backoff: 2^attempt seconds (1s, 2s, 4s, 8s, 16s)
+                const delay = Math.pow(2, attempt) * 1000;
+                this.loginRetryCount = attempt;
+                winston.warn(
+                    `Growatt: Login attempt ${attempt} failed (retry count: ${
+                        this.loginRetryCount
+                    }), retrying in ${delay / 1000}s...`
+                );
+                await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    private startHourlyRefresh(): void {
+        // Clear any existing interval
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+
+        // Set up hourly refresh (3600000 ms = 1 hour)
+        this.refreshInterval = setInterval(async () => {
+            winston.info("Growatt: Hourly refresh triggered");
+            try {
+                await this.logout();
+                await this.login();
+                if (this.connected) {
+                    winston.info("Growatt: Hourly refresh successful");
+                } else {
+                    winston.error(
+                        "Growatt: Hourly refresh failed - not connected"
+                    );
+                }
+            } catch (error: any) {
+                winston.error(
+                    `Growatt: Hourly refresh failed: ${error.message || error}`
+                );
+            }
+        }, 3600000); // 1 hour in milliseconds
+
+        winston.info("Growatt: Hourly refresh interval started");
+    }
+
+    /**
+     * Stops the hourly refresh interval.
+     * Useful for cleanup or when shutting down the service.
+     * @internal This method is available for cleanup but may not be called in normal operation.
+     */
+    // @ts-ignore - Utility method for cleanup, may not be used in normal operation
+    private stopHourlyRefresh(): void {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+            winston.info("Growatt: Hourly refresh interval stopped");
         }
     }
 
