@@ -1,0 +1,21 @@
+{
+    "name": "growattserver",
+    "module": "index.ts",
+    "type": "module",
+    "scripts": {
+        "start": "bun run src/index.ts",
+        "dev": "bun run --watch src/index.ts"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/md5": "^2.3.6"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "axios": "^1.13.2",
+        "md5": "^2.3.0",
+        "zod": "^4.1.13"
+    }
+}

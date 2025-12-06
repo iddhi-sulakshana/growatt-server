@@ -1,0 +1,37 @@
+import { z, ZodError } from "zod";
+
+const envSchema = z.object({
+    GROWATT_USERNAME: z.string(),
+    GROWATT_PASSWORD: z.string(),
+    GROWATT_SERVER: z.string(),
+});
+
+export default class ENV {
+    static GROWATT_USERNAME: string;
+    static GROWATT_PASSWORD: string;
+    static GROWATT_SERVER: string;
+
+    public static configEnvironment() {
+        try {
+            const env = envSchema.parse(process.env);
+            this.GROWATT_USERNAME = env.GROWATT_USERNAME;
+            this.GROWATT_PASSWORD = env.GROWATT_PASSWORD;
+            this.GROWATT_SERVER = env.GROWATT_SERVER;
+            console.log("Environment configuration loaded successfully");
+        } catch (error) {
+            const issues = (error as ZodError).issues.map((issue) => {
+                const path = issue.path.join(".") || "body";
+                const message =
+                    issue.message.split(":")[1]?.trim() || issue.message;
+                const code = issue.code;
+                return {
+                    path,
+                    message,
+                    code,
+                };
+            });
+            console.error("Environment configuration errors:", issues);
+            process.exit(1);
+        }
+    }
+}
