@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import healthRouter from "./health/controller";
+import authRouter from "./auth/controller";
 
 export function initializeRoutes(app: Express) {
     // Global API prefix
@@ -7,4 +8,7 @@ export function initializeRoutes(app: Express) {
 
     // Health check route
     app.use(`${PREFIX}/health`, healthRouter);
+
+    // Auth routes
+    app.use(`${PREFIX}/auth`, authRouter);
 }

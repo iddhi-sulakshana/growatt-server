@@ -5,7 +5,10 @@ import type { HttpStatusCode } from "./status-codes";
 declare global {
     namespace Express {
         interface Request {
-            // user?: ApiRequestUser;
+            user?: {
+                id: number;
+                username: string;
+            };
             imageKey?: string;
         }
 

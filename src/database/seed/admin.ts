@@ -1,8 +1,6 @@
 import argon2 from "argon2";
-import { db } from "@/configs/db";
-import { admin } from "@/database/schema";
 import { ENV } from "@/configs";
-import { eq } from "drizzle-orm";
+import { AdminRepository } from "@/database/repositories";
 
 export async function seedAdmin() {
     // Ensure environment is configured
@@ -18,23 +16,20 @@ export async function seedAdmin() {
     // Hash the password using argon2
     const hashedPassword = await argon2.hash(password);
 
-    // Check if admin already exists
-    const existingAdmin = await db
-        .select()
-        .from(admin)
-        .where(eq(admin.username, username))
-        .limit(1);
+    const adminRepository = new AdminRepository();
 
-    if (existingAdmin.length > 0) {
+    // Check if admin already exists
+    const existingAdmin = await adminRepository.findByUsername(username);
+
+    if (existingAdmin) {
         // Update existing admin password
-        await db
-            .update(admin)
-            .set({ password: hashedPassword })
-            .where(eq(admin.username, username));
+        await adminRepository.updateByUsername(username, {
+            password: hashedPassword,
+        });
         console.log(`Admin user "${username}" password updated successfully`);
     } else {
         // Insert new admin
-        await db.insert(admin).values({
+        await adminRepository.create({
             username,
             password: hashedPassword,
         });
