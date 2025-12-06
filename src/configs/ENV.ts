@@ -8,6 +8,7 @@ const envSchema = z.object({
     DATABASE_URL: z.url(),
     NODE_ENV: z.enum(["development", "production"]),
     PORT: z.coerce.number().int().positive(),
+    ADMIN_PASSWORD: z.string(),
 });
 
 export default class ENV {
@@ -18,6 +19,7 @@ export default class ENV {
     static DATABASE_URL: string;
     static NODE_ENV: "development" | "production";
     static PORT: number;
+    static ADMIN_PASSWORD: string;
     public static configEnvironment() {
         try {
             if (!process.env.NODE_ENV) process.env.NODE_ENV = "development";
@@ -29,6 +31,7 @@ export default class ENV {
             this.DATABASE_URL = env.DATABASE_URL;
             this.NODE_ENV = env.NODE_ENV;
             this.PORT = env.PORT;
+            this.ADMIN_PASSWORD = env.ADMIN_PASSWORD;
             console.log("Environment configuration loaded successfully");
         } catch (error) {
             const issues = (error as ZodError).issues.map((issue) => {

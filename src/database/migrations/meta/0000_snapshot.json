@@ -1,11 +1,11 @@
 {
-  "id": "1219237f-93ab-4730-bd55-5d8409d80afc",
+  "id": "39ed697b-cbc1-4e02-80cd-97d87bbd2b5b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.sample": {
-      "name": "sample",
+    "public.admin": {
+      "name": "admin",
       "schema": "",
       "columns": {
         "id": {
@@ -14,8 +14,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
           "type": "text",
           "primaryKey": false,
           "notNull": true
