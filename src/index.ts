@@ -1,6 +1,7 @@
 import { configLogger, ENV, redis } from "./configs";
 import initializeServer from "./server";
 import { checkDatabaseConnection } from "./utils/db";
+import { growatt } from "./services/growatt-instance";
 
 async function main() {
     ENV.configEnvironment();
@@ -8,6 +9,21 @@ async function main() {
 
     // Initialize the Redis client
     redis.createRedisClient();
+
+    // Initialize Growatt connection
+    logger.info("Initializing Growatt connection...");
+    try {
+        await growatt.login();
+        if (growatt.isConnected()) {
+            logger.info("Growatt connection established successfully ✅");
+        } else {
+            logger.warn("Growatt connection failed, but continuing...");
+        }
+    } catch (error: any) {
+        console.error(error);
+        logger.error("Failed to initialize Growatt connection:", error.message);
+        logger.warn("Continuing without Growatt connection...");
+    }
 
     // Initialize Express App
     const app = initializeServer();
