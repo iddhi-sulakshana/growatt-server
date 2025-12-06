@@ -1,5 +1,5 @@
 import Axios, { type AxiosInstance } from "axios";
-import ENV from "../utils/ENV";
+import ENV from "../configs/ENV";
 import MD5 from "md5";
 import type {
     Device,
@@ -13,7 +13,7 @@ import type {
     PlantDetails,
     Weather,
 } from "../types/types";
-import GROWATTTYPE from "../types/growatt.types";
+import GROWATTTYPE from "../types/growatt";
 
 export default class Growatt {
     private axios: AxiosInstance;

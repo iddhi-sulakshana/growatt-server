@@ -1,4 +1,4 @@
-import type GROWATTTYPE from "./growatt.types";
+import type GROWATTTYPE from "./growatt";
 
 export type Plant = {
     id: string;
