@@ -1,13 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Growatt Server</title>
+        <style>
+            .full-page-loader {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+                position: absolute;
+                top: 0;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                /* Solid black background to match logo */
+                background: #ebffed;
+            }
+
+            .full-page-loader > img {
+                animation: 5s infinite heartbeat;
+                max-width: 300px;
+                height: auto;
+            }
+
+            @keyframes heartbeat {
+                0% {
+                    transform: scale(1);
+                }
+                25% {
+                    transform: scale(1.05);
+                }
+                50% {
+                    transform: scale(1);
+                }
+                75% {
+                    transform: scale(1.05);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root">
+            <div class="full-page-loader">
+                <img src="/logo.png" alt="Growatt Logo" />
+            </div>
+        </div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
 </html>

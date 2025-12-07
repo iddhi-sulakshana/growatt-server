@@ -1,18 +1,10 @@
-import { useState } from "react";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import { useAuthStore } from "./lib/AuthStore";
 
 const App = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    return (
-        <main>
-            {isLoggedIn ? (
-                <Dashboard />
-            ) : (
-                <Login onLogin={() => setIsLoggedIn(true)} />
-            )}
-        </main>
-    );
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    return <main>{isAuthenticated ? <Dashboard /> : <Login />}</main>;
 };
 
 export default App;

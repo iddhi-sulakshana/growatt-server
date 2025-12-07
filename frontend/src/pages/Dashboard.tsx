@@ -1,5 +1,7 @@
-import { Sun, Battery, Zap, Home, Power } from "lucide-react";
+import { Sun, Battery, Zap, Home, Power, LogOut } from "lucide-react";
 import SystemDiagram from "../components/SystemDiagram";
+import { useAuthStore } from "../lib/AuthStore";
+import { Button } from "@/components/ui/button";
 interface MetricCard {
     title: string;
     icon: React.ElementType;
@@ -8,6 +10,7 @@ interface MetricCard {
     totalKwh: number;
 }
 const Dashboard = () => {
+    const logout = useAuthStore((state) => state.logout);
     const metrics: MetricCard[] = [
         {
             title: "Photovoltaic Output",
@@ -53,7 +56,14 @@ const Dashboard = () => {
         },
     ];
     return (
-        <main className="bg-gray-100 h-screen w-screen flex items-center justify-center overflow-hidden">
+        <main className="bg-gray-100 h-screen w-screen flex items-center justify-center overflow-hidden relative">
+            <Button
+                className="absolute top-4 right-4 rounded-full aspect-square p-5"
+                variant="destructive"
+                onClick={logout}
+            >
+                <LogOut className="w-4 h-4" />
+            </Button>
             <div className="flex items-center justify-center h-full w-full gap-4 p-4">
                 <div className="w-1/3 h-full flex items-center justify-center flex-col gap-4">
                     <div className="aspect-square w-full border-4 border-gray-500 rounded-lg">
