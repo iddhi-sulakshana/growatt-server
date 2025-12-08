@@ -12,7 +12,7 @@ ApiClient.interceptors.request.use((config) => {
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
     }
-    config.headers["ngrok-skip-browser-warning"] = "true";
+    // config.headers["ngrok-skip-browser-warning"] = "true";
     return config;
 });
 
