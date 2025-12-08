@@ -1,4 +1,4 @@
-import { getDeviceStatusApi } from "@/api/growatt";
+import { getDeviceStatusApi, getTotalDataApi } from "@/api/growatt";
 import { useQuery } from "@tanstack/react-query";
 
 export const getDeviceStatusService = () => {
@@ -7,5 +7,14 @@ export const getDeviceStatusService = () => {
         queryFn: getDeviceStatusApi,
         // Refetch every 10 seconds
         refetchInterval: 10000,
+    });
+};
+
+export const getTotalDataService = () => {
+    return useQuery({
+        queryKey: ["total-data"],
+        queryFn: getTotalDataApi,
+        // Refetch every 5 minutes
+        refetchInterval: 5 * 60 * 1000,
     });
 };

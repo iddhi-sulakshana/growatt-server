@@ -59,20 +59,6 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Device Status</p>
-                    <p className="text-lg font-bold">
-                        {getDeviceStatus(deviceStatus.status)}
-                    </p>
-                </div>
-            </div>
-            <div className="p-1 flex justify-between items-center gap-1">
-                <div className="flex items-center justify-between w-full">
-                    <p className="text-xs font-bold">Inverter Status</p>
-                    <p className="text-xs font-bold">
-                        {getInverterStatus(deviceStatus.invStatus)}
-                    </p>
-                </div>
-                <div className="flex items-center justify-between w-full">
                     <p className="text-sm font-bold">Total Inverter Current</p>
                     <p className="text-lg font-bold">
                         {deviceStatus.iTotal || "0"}
@@ -80,21 +66,20 @@ const DeviceStatus = ({
                     </p>
                 </div>
             </div>
-
             {/* PV Panel Information */}
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV1 Voltage</p>
+                    <p className="text-sm font-bold">Total Panel Power</p>
                     <p className="text-lg font-bold">
-                        {deviceStatus.vPv1 || "0"}
-                        <span className="text-xs">V</span>
+                        {deviceStatus.panelPower || "0"}
+                        <span className="text-xs">W</span>
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV2 Voltage</p>
+                    <p className="text-sm font-bold">PV1 Current</p>
                     <p className="text-lg font-bold">
-                        {deviceStatus.vPv2 || "0"}
-                        <span className="text-xs">V</span>
+                        {deviceStatus.iPv1 || "0"}
+                        <span className="text-xs">A</span>
                     </p>
                 </div>
             </div>
@@ -116,17 +101,17 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Total Panel Power</p>
+                    <p className="text-sm font-bold">PV1 Voltage</p>
                     <p className="text-lg font-bold">
-                        {deviceStatus.panelPower || "0"}
-                        <span className="text-xs">W</span>
+                        {deviceStatus.vPv1 || "0"}
+                        <span className="text-xs">V</span>
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV1 Current</p>
+                    <p className="text-sm font-bold">PV2 Voltage</p>
                     <p className="text-lg font-bold">
-                        {deviceStatus.iPv1 || "0"}
-                        <span className="text-xs">A</span>
+                        {deviceStatus.vPv2 || "0"}
+                        <span className="text-xs">V</span>
                     </p>
                 </div>
             </div>
@@ -179,6 +164,23 @@ const DeviceStatus = ({
                     <p className="text-lg font-bold">
                         {deviceStatus.rateVA || "0"}
                         <span className="text-xs">VA</span>
+                    </p>
+                </div>
+            </div>
+
+            <div className="p-1 flex justify-between items-center gap-1">
+                <div className="flex items-center justify-between w-full">
+                    <p className="text-sm font-bold">Inverter Status</p>
+                    <p className="text-lg font-bold">
+                        {getInverterStatus(deviceStatus.invStatus)}
+                    </p>
+                </div>
+            </div>
+            <div className="p-1 flex justify-between items-center gap-1">
+                <div className="flex items-center justify-between w-full">
+                    <p className="text-sm font-bold">Device Status</p>
+                    <p className="text-lg font-bold">
+                        {getDeviceStatus(deviceStatus.status)}
                     </p>
                 </div>
             </div>
