@@ -135,21 +135,21 @@ const Metrics = () => {
                         </p>
                     </div>
                     <div className="flex items-center justify-between w-full p-2 h-full">
-                        <p className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
+                        <div className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
                             {metric.todayKwh.toFixed(1)}
                             <div className="flex flex-col items-start justify-center">
                                 <div className="text-xs">Today</div>
                                 <div className="text-sm">kWh</div>
                             </div>
-                        </p>
+                        </div>
 
-                        <p className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
+                        <div className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
                             {metric.totalKwh.toFixed(1)}
                             <div className="flex flex-col items-start justify-center">
                                 <div className="text-xs">Total</div>
                                 <div className="text-sm">kWh</div>
                             </div>
-                        </p>
+                        </div>
                     </div>
                 </div>
             ))}
