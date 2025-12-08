@@ -10,7 +10,7 @@ const Dashboard = () => {
     const { data: deviceStatus, isError, isLoading } = getDeviceStatusService();
 
     return (
-        <main className="bg-gray-100 h-screen w-screen flex items-center justify-center overflow-hidden relative">
+        <main className="bg-gray-100 h-screen w-screen flex items-center justify-center overflow-y-auto md:overflow-hidden relative">
             <Button
                 className="absolute top-4 right-4 rounded-full aspect-square p-5"
                 variant="destructive"
@@ -18,8 +18,8 @@ const Dashboard = () => {
             >
                 <LogOut className="w-4 h-4" />
             </Button>
-            <div className="flex items-center justify-center h-full w-full gap-4 p-4">
-                <div className="w-1/3 h-full flex items-center justify-center flex-col gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-center h-full w-full gap-4 p-4">
+                <div className="md:w-1/3 w-full h-full flex items-center justify-center flex-col gap-4">
                     {/* <div className="aspect-square w-full border-4 border-gray-500 rounded-lg">
                         {isLoading ? (
                             <div className="flex items-center justify-center h-full w-full">
@@ -59,7 +59,7 @@ const Dashboard = () => {
                         )}
                     </div>
                 </div>
-                <div className="w-2/3 h-full grid grid-cols-3 grid-rows-2 gap-4">
+                <div className="md:w-2/3 w-full h-full grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 grid">
                     <Metrics />
                 </div>
             </div>

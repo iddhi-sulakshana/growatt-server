@@ -9,6 +9,7 @@ import {
     AlertCircle,
     BatteryCharging,
 } from "lucide-react";
+import { Separator } from "./ui/separator";
 
 interface MetricCard {
     title: string;
@@ -28,7 +29,7 @@ const Metrics = () => {
     // Define metric configurations with data field mappings
     const metricConfigs = [
         {
-            title: "Photovoltaic Output",
+            title: "Solar Output",
             icon: Sun,
             iconColor: "text-teal-500",
             todayField: "epvToday",
@@ -130,24 +131,27 @@ const Metrics = () => {
                         <metric.icon
                             className={`w-1/2 h-1/2 ${metric.iconColor}`}
                         />
-                        <p className="text-md font-extrabold font-mono">
+                        <p className="md:text-md text-xs font-extrabold font-mono">
                             {metric.title}
                         </p>
                     </div>
-                    <div className="flex items-center justify-between w-full p-2 h-full">
-                        <div className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
+                    <div className="flex items-center justify-around w-full p-2 h-full">
+                        <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center">
                             {metric.todayKwh.toFixed(1)}
-                            <div className="flex flex-col items-start justify-center">
-                                <div className="text-xs">Today</div>
-                                <div className="text-sm">kWh</div>
+                            <div className="flex flex-col items-center justify-center">
+                                <div className="md:text-lg text-xs">kWh</div>
+                                <div className="md:text-lg text-xs">Today</div>
                             </div>
                         </div>
-
-                        <div className="text-3xl font-mono font-bold flex items-center justify-center gap-1">
+                        <Separator
+                            orientation="vertical"
+                            className="border border-gray-500"
+                        />
+                        <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center">
                             {metric.totalKwh.toFixed(1)}
-                            <div className="flex flex-col items-start justify-center">
-                                <div className="text-xs">Total</div>
-                                <div className="text-sm">kWh</div>
+                            <div className="flex flex-col items-center justify-center">
+                                <div className="md:text-lg text-xs">kWh</div>
+                                <div className="md:text-lg text-xs">Total</div>
                             </div>
                         </div>
                     </div>

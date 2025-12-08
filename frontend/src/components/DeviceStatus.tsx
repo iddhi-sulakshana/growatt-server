@@ -176,9 +176,9 @@ const DeviceStatus = ({
         <Fragment>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Load Power</p>
+                    <p className="md:text-sm text-xs font-bold">Load Power</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "loadPower"
                         )}`}
                     >
@@ -190,9 +190,11 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Load Percentage</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Load Percentage
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "loadPrecent"
                         )}`}
                     >
@@ -207,9 +209,11 @@ const DeviceStatus = ({
             {/* Battery Information */}
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Battery Voltage</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Battery Voltage
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "vBat"
                         )}`}
                     >
@@ -221,9 +225,11 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Battery Capacity</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Battery Capacity
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "capacity"
                         )}`}
                     >
@@ -237,9 +243,11 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Battery Power</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Battery Power
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "batPower"
                         )}`}
                     >
@@ -251,9 +259,11 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Total Inverter Current</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Total Inverter Current
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "iTotal"
                         )}`}
                     >
@@ -273,9 +283,11 @@ const DeviceStatus = ({
             {/* PV Panel Information */}
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Total Panel Power</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Total Panel Power
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "panelPower"
                         )}`}
                     >
@@ -290,9 +302,9 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV1 Power</p>
+                    <p className="md:text-sm text-xs font-bold">PV1 Power</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "ppv1"
                         )}`}
                     >
@@ -304,9 +316,9 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV2 Power</p>
+                    <p className="md:text-sm text-xs font-bold">PV2 Power</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "ppv2"
                         )}`}
                     >
@@ -320,9 +332,9 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV1 Current</p>
+                    <p className="md:text-sm text-xs font-bold">PV1 Current</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "iPv1"
                         )}`}
                     >
@@ -334,9 +346,9 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV2 Current</p>
+                    <p className="md:text-sm text-xs font-bold">PV2 Current</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "iPv2"
                         )}`}
                     >
@@ -350,9 +362,9 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV1 Voltage</p>
+                    <p className="md:text-sm text-xs font-bold">PV1 Voltage</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "vPv1"
                         )}`}
                     >
@@ -364,9 +376,9 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">PV2 Voltage</p>
+                    <p className="md:text-sm text-xs font-bold">PV2 Voltage</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "vPv2"
                         )}`}
                     >
@@ -386,9 +398,9 @@ const DeviceStatus = ({
             {/* Grid Information */}
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Grid Voltage</p>
+                    <p className="md:text-sm text-xs font-bold">Grid Voltage</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "vAcInput"
                         )}`}
                     >
@@ -400,9 +412,11 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Grid Frequency</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Grid Frequency
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "fAcInput"
                         )}`}
                     >
@@ -418,9 +432,11 @@ const DeviceStatus = ({
             {/* AC Output Information */}
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">AC Output Voltage</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        AC Output Voltage
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "vAcOutput"
                         )}`}
                     >
@@ -432,9 +448,11 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">AC Output Frequency</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        AC Output Frequency
+                    </p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "fAcOutput"
                         )}`}
                     >
@@ -448,9 +466,9 @@ const DeviceStatus = ({
             </div>
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Grid Power</p>
+                    <p className="md:text-sm text-xs font-bold">Grid Power</p>
                     <p
-                        className={`text-lg font-bold ${getValueColorClass(
+                        className={`md:text-lg text-md font-bold ${getValueColorClass(
                             "gridPower"
                         )}`}
                     >
@@ -462,7 +480,9 @@ const DeviceStatus = ({
                     </p>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Apparent Power</p>
+                    <p className="md:text-sm text-xs font-bold">
+                        Apparent Power
+                    </p>
                     <p
                         className={`text-lg font-bold ${getValueColorClass(
                             "rateVA"
@@ -483,16 +503,20 @@ const DeviceStatus = ({
             />
             <div className="p-1 flex justify-between items-center gap-1">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Inverter Status</p>
-                    <p className="text-lg font-bold">
+                    <p className="md:text-sm text-xs font-bold">
+                        Inverter Status
+                    </p>
+                    <p className="md:text-lg text-sm font-bold">
                         {getInverterStatus(deviceStatus.invStatus)}
                     </p>
                 </div>
             </div>
             <div className="p-1 flex justify-between items-center gap-1">
                 <div className="flex items-center justify-between w-full">
-                    <p className="text-sm font-bold">Device Status</p>
-                    <p className="text-lg font-bold">
+                    <p className="md:text-sm text-xs font-bold">
+                        Device Status
+                    </p>
+                    <p className="md:text-lg text-sm font-bold">
                         {getDeviceStatus(deviceStatus.status)}
                     </p>
                 </div>
