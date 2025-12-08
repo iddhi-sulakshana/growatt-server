@@ -1,6 +1,6 @@
 import type { GrowattDeviceStatusResponse } from "@/types/growatt";
 import { getDeviceStatus, getInverterStatus } from "@/types/enums";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
 
 type ChangeState = "increased" | "decreased" | null;
@@ -173,7 +173,7 @@ const DeviceStatus = ({
     }
 
     return (
-        <Fragment>
+        <div className="flex flex-col md:gap-2">
             <div className="p-1 flex justify-between items-center gap-10">
                 <div className="flex items-center justify-between w-full">
                     <p className="md:text-sm text-xs font-bold">Load Power</p>
@@ -521,7 +521,7 @@ const DeviceStatus = ({
                     </p>
                 </div>
             </div>
-        </Fragment>
+        </div>
     );
 };
 

@@ -5,8 +5,8 @@ export const getDeviceStatusService = () => {
     return useQuery({
         queryKey: ["device-status"],
         queryFn: getDeviceStatusApi,
-        // Refetch every 10 seconds
-        refetchInterval: 10000,
+        // Refetch every 5 seconds
+        refetchInterval: 5000,
     });
 };
 
