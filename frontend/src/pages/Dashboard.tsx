@@ -64,8 +64,8 @@ const Dashboard = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="w-full md:h-full flex flex-col md:items-center md:justify-center p-2 md:p-4">
-                                <div className="w-full flex flex-col md:gap-3">
+                            <div className="w-full md:h-full flex flex-col md:items-center md:justify-center overflow-hidden">
+                                <div className="w-full flex flex-col md:gap-3 overflow-y-scroll">
                                     <DeviceStatus
                                         deviceStatus={deviceStatus?.data}
                                     />

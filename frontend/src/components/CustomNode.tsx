@@ -1,7 +1,8 @@
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position, useHandleConnections } from "@xyflow/react";
 import { Battery, Home, ServerCrash, SolarPanel, Zap } from "lucide-react";
-import { memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import { animate } from "framer-motion";
 
 const iconMap = {
     grid: Zap,
@@ -10,12 +11,52 @@ const iconMap = {
     battery: Battery,
     solar: SolarPanel,
 };
+
+type ChangeState = "increased" | "decreased" | null;
+const transitionDuration = 1000;
+
+// Component to animate number changes with fixed duration
+const AnimatedNumber = ({
+    value,
+    decimals = 0,
+    suffix = "",
+}: {
+    value: number;
+    decimals?: number;
+    suffix?: string;
+}) => {
+    const [displayValue, setDisplayValue] = useState(value);
+    const prevValueRef = useRef(value);
+
+    useEffect(() => {
+        if (prevValueRef.current !== value) {
+            const startValue = prevValueRef.current;
+            const controls = animate(startValue, value, {
+                duration: transitionDuration / 1000, // Convert to seconds
+                ease: "easeOut",
+                onUpdate: (latest) => {
+                    setDisplayValue(latest);
+                },
+            });
+
+            prevValueRef.current = value;
+            return () => controls.stop();
+        }
+    }, [value]);
+
+    return (
+        <>
+            {displayValue.toFixed(decimals)}
+            {suffix && <span className="text-xs">{suffix}</span>}
+        </>
+    );
+};
+
 function CustomNode({
     data,
 }: {
     data: { icon: keyof typeof iconMap; name: string; id: string };
 }) {
-    // Check if handles are connected for all positions
     const topConnections = useHandleConnections({ type: "target", id: "top" });
     const bottomConnections = useHandleConnections({
         type: "source",
@@ -78,6 +119,52 @@ function CustomNode({
         default:
             value = 0;
     }
+
+    // Track previous value and change state for animations
+    const prevValueRef = useRef<number | null>(null);
+    const [changeState, setChangeState] = useState<ChangeState>(null);
+    const timeoutRef = useRef<number | null>(null);
+
+    // Effect to detect value changes and set animation state
+    useEffect(() => {
+        if (prevValueRef.current !== null && prevValueRef.current !== value) {
+            // Clear existing timeout
+            if (timeoutRef.current !== null) {
+                clearTimeout(timeoutRef.current);
+            }
+
+            // Set change state based on value comparison
+            if (value > prevValueRef.current) {
+                setChangeState("increased");
+            } else if (value < prevValueRef.current) {
+                setChangeState("decreased");
+            }
+
+            // Set timeout to reset change state after animation
+            timeoutRef.current = window.setTimeout(() => {
+                setChangeState(null);
+            }, transitionDuration);
+        }
+
+        prevValueRef.current = value;
+
+        // Cleanup function
+        return () => {
+            if (timeoutRef.current !== null) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [value]);
+
+    // Get color class based on change state
+    const getValueColorClass = (): string => {
+        if (changeState === "increased") {
+            return `text-green-500 transition-colors duration-[${transitionDuration}ms]`;
+        } else if (changeState === "decreased") {
+            return `text-red-500 transition-colors duration-[${transitionDuration}ms]`;
+        }
+        return `transition-colors duration-[${transitionDuration}ms]`;
+    };
     if (value === 0 && data.id !== "inverter") {
         handleClassName = "gray-500";
     }
@@ -96,9 +183,12 @@ function CustomNode({
                     {data.id !== "inverter" && (
                         <p className="text-xs">{data.name}</p>
                     )}
-                    <p className="text-xs font-mono">
-                        {value}
-                        {valueString}
+                    <p className={`text-xs font-mono ${getValueColorClass()}`}>
+                        <AnimatedNumber
+                            value={value}
+                            decimals={0}
+                            suffix={valueString}
+                        />
                     </p>
                 </div>
             )}
@@ -113,9 +203,14 @@ function CustomNode({
                 <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
                     <p className="text-xs">{data.name}</p>
                     {data.id !== "inverter" && (
-                        <p className="text-xs font-mono">
-                            {value}
-                            {valueString}
+                        <p
+                            className={`text-xs font-mono ${getValueColorClass()}`}
+                        >
+                            <AnimatedNumber
+                                value={value}
+                                decimals={0}
+                                suffix={valueString}
+                            />
                         </p>
                     )}
                 </div>
@@ -130,6 +225,15 @@ function CustomNode({
                     className={`bg-${handleClassName}!`}
                 />
             )}
+            {/* Top source handle for battery (to connect to inverter) */}
+            {data.id === "battery" && (
+                <Handle
+                    type="source"
+                    position={Position.Top}
+                    id="top-source"
+                    className={`bg-${handleClassName}!`}
+                />
+            )}
 
             {/* Bottom handle */}
             {bottomConnections.length > 0 && (
@@ -137,6 +241,15 @@ function CustomNode({
                     type="source"
                     position={Position.Bottom}
                     id="bottom"
+                    className={`bg-${handleClassName}!`}
+                />
+            )}
+            {/* Bottom target handle for inverter (to receive from battery) */}
+            {data.id === "inverter" && (
+                <Handle
+                    type="target"
+                    position={Position.Bottom}
+                    id="bottom-target"
                     className={`bg-${handleClassName}!`}
                 />
             )}

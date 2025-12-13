@@ -55,7 +55,6 @@ const initialNodes: Node[] = [
         type: "custom",
     },
 ];
-
 const initialEdges: Edge[] = [
     // Solar panels to inverter
     {
@@ -100,24 +99,13 @@ const initialEdges: Edge[] = [
         animated: true,
         style: { stroke: "orange", strokeWidth: 3 },
     },
-    // Inverter to battery
-    {
-        id: "inverter-battery",
-        source: "inverter",
-        target: "battery",
-        sourceHandle: "bottom",
-        targetHandle: "top",
-        type: "step",
-        animated: true,
-        style: { stroke: "#2b7fff", strokeWidth: 3 },
-    },
-    // Battery back to inverter (bidirectional)
+    // Battery to inverter (discharging)
     {
         id: "battery-inverter",
         source: "battery",
         target: "inverter",
-        sourceHandle: "top",
-        targetHandle: "bottom",
+        sourceHandle: "top-source",
+        targetHandle: "bottom-target",
         type: "step",
         animated: true,
         style: { stroke: "#2b7fff", strokeWidth: 3 },
@@ -207,34 +195,19 @@ const SystemDiagram = () => {
                     opacity: loadPower > 0 ? 1 : 0.3,
                 },
             },
-            // Inverter to battery (charging)
-            {
-                id: "inverter-battery",
-                source: "inverter",
-                target: "battery",
-                sourceHandle: "bottom",
-                targetHandle: "top",
-                type: "step",
-                animated: batPower > 0,
-                style: {
-                    stroke: batPower > 0 ? "#2b7fff" : disabledColor,
-                    strokeWidth: 3,
-                    opacity: batPower > 0 ? 1 : 0.3,
-                },
-            },
-            // Battery to inverter (discharging)
+            // Battery to inverter (discharging) - REMOVED inverter-battery (charging)
             {
                 id: "battery-inverter",
-                source: "battery",
-                target: "inverter",
-                sourceHandle: "top",
-                targetHandle: "bottom",
+                source: batPower > 0 ? "battery" : "inverter",
+                target: batPower > 0 ? "inverter" : "battery",
+                sourceHandle: batPower > 0 ? "top-source" : "bottom",
+                targetHandle: batPower > 0 ? "bottom-target" : "top",
                 type: "step",
-                animated: batPower < 0,
+                animated: batPower !== 0,
                 style: {
-                    stroke: batPower < 0 ? "#2b7fff" : disabledColor,
+                    stroke: batPower !== 0 ? "#2b7fff" : disabledColor,
                     strokeWidth: 3,
-                    opacity: batPower < 0 ? 1 : 0.3,
+                    opacity: batPower !== 0 ? 1 : 0.3,
                 },
             },
         ];
@@ -264,6 +237,7 @@ const SystemDiagram = () => {
                 nodeTypes={{
                     custom: CustomNode,
                 }}
+                debug={true}
             />
         </div>
     );
