@@ -17,13 +17,13 @@ const initialNodes: Node[] = [
     {
         id: "solar1",
         position: { x: 150, y: 0 },
-        data: { icon: "solar", name: "Solar Panel 1", id: "solar1" },
+        data: { icon: "solar", name: "Solar 1", id: "solar1" },
         type: "custom",
     },
     {
         id: "solar2",
         position: { x: 300, y: 0 },
-        data: { icon: "solar", name: "Solar Panel 2", id: "solar2" },
+        data: { icon: "solar", name: "Solar 2", id: "solar2" },
         type: "custom",
     },
     // Grid import - left side

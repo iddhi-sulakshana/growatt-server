@@ -178,11 +178,8 @@ function CustomNode({
 
     return (
         <div className="flex flex-col items-center">
-            {(data.icon === "solar" || data.id === "inverter") && (
+            {data.id === "inverter" && (
                 <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
-                    {data.id !== "inverter" && (
-                        <p className="text-xs">{data.name}</p>
-                    )}
                     <p className={`text-xs font-mono ${getValueColorClass()}`}>
                         <AnimatedNumber
                             value={value}
@@ -199,25 +196,20 @@ function CustomNode({
                 />
             </div>
 
-            {data.icon !== "solar" && (
-                <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
-                    <p className="text-xs">{data.name}</p>
-                    {data.id !== "inverter" && (
-                        <p
-                            className={`text-xs font-mono ${getValueColorClass()}`}
-                        >
-                            <AnimatedNumber
-                                value={value}
-                                decimals={0}
-                                suffix={valueString}
-                            />
-                        </p>
-                    )}
-                </div>
-            )}
-
+            <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                <p className="text-xs">{data.name}</p>
+                {data.id !== "inverter" && (
+                    <p className={`text-xs font-mono ${getValueColorClass()}`}>
+                        <AnimatedNumber
+                            value={Math.abs(Number(value))}
+                            decimals={0}
+                            suffix={valueString}
+                        />
+                    </p>
+                )}
+            </div>
             {/* Top handle */}
-            {topConnections.length > 0 && (
+            {(topConnections.length > 0 || data.id === "battery") && (
                 <Handle
                     type="target"
                     position={Position.Top}
@@ -234,9 +226,8 @@ function CustomNode({
                     className={`bg-${handleClassName}!`}
                 />
             )}
-
             {/* Bottom handle */}
-            {bottomConnections.length > 0 && (
+            {(bottomConnections.length > 0 || data.id === "inverter") && (
                 <Handle
                     type="source"
                     position={Position.Bottom}
@@ -253,7 +244,6 @@ function CustomNode({
                     className={`bg-${handleClassName}!`}
                 />
             )}
-
             {/* Left handle */}
             {leftConnections.length > 0 && (
                 <Handle
@@ -263,7 +253,6 @@ function CustomNode({
                     className={`bg-${handleClassName}!`}
                 />
             )}
-
             {/* Right handle */}
             {rightConnections.length > 0 && (
                 <Handle
