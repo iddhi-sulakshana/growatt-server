@@ -19,7 +19,7 @@ interface MetricCard {
     totalKwh: number;
 }
 
-const Metrics = () => {
+const TotalMetrics = () => {
     const {
         data: totalData,
         isError: isTotalDataError,
@@ -161,4 +161,4 @@ const Metrics = () => {
     );
 };
 
-export default Metrics;
+export default TotalMetrics;

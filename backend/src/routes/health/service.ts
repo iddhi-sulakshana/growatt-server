@@ -3,6 +3,7 @@ import type { HealthReport } from "./dto";
 import os from "os";
 import HTTP_STATUS from "@/types/status-codes";
 import { checkDatabaseConnection } from "@/utils/db";
+import { growatt } from "@/services/growatt-instance";
 
 export async function checkHealthService(): Promise<
     DataResponse<HealthReport>
@@ -19,6 +20,10 @@ export async function checkHealthService(): Promise<
         },
         cpuUsage: process.cpuUsage(),
         dependencies: {
+            growatt: {
+                status: "ISSUE",
+                message: "Growatt is not running",
+            },
             // Add any dependencies over here
             // Like external APIs
         },
@@ -32,6 +37,13 @@ export async function checkHealthService(): Promise<
     if (isDatabaseConnected) {
         response.database.status = "OK";
         response.database.message = "Database is running";
+    }
+
+    const isGrowattConnected = await growatt.isConnected();
+    if (isGrowattConnected) {
+        response.dependencies.growatt.status = "OK";
+        response.dependencies.growatt.message =
+            "Growatt connection is established";
     }
 
     return {

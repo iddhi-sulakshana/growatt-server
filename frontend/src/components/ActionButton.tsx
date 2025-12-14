@@ -1,14 +1,41 @@
 import { useState } from "react";
 import { useAuthStore } from "@/lib/AuthStore";
 import { Button } from "./ui/button";
-import { LogOut, Menu, X, Settings } from "lucide-react";
+import { LogOut, Menu, X, Settings, BarChart3, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ActionButton = () => {
+interface ActionButtonProps {
+    onViewChange?: (view: 0 | 1) => void;
+    currentView?: 0 | 1;
+}
+
+const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const logout = useAuthStore((state) => state.logout);
 
     const menuItems = [
+        {
+            icon: BarChart3,
+            label: "Total Metrics",
+            onClick: () => {
+                onViewChange?.(0);
+                setIsOpen(false);
+            },
+            variant: (currentView === 0 ? "default" : "outline") as
+                | "default"
+                | "outline",
+        },
+        {
+            icon: Activity,
+            label: "Live Metrics",
+            onClick: () => {
+                onViewChange?.(1);
+                setIsOpen(false);
+            },
+            variant: (currentView === 1 ? "default" : "outline") as
+                | "default"
+                | "outline",
+        },
         {
             icon: Settings,
             label: "Settings",
@@ -28,10 +55,10 @@ const ActionButton = () => {
             },
             variant: "destructive" as const,
         },
-    ];
+    ] as const;
 
     return (
-        <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
+        <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
             {/* Main menu button */}
             <motion.div
                 animate={{ rotate: isOpen ? 90 : 0 }}

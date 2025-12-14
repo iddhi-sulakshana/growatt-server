@@ -9,6 +9,7 @@ export const DEVICE_STATUS_MAP: Record<string, string> = {
     "2": "Discharge",
     "3": "Fault",
     "4": "Flash",
+    "12": "Bypass (Grid) Output",
 };
 
 // Inverter internal status code (invStatus field)
