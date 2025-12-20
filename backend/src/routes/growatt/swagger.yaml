@@ -1,0 +1,1034 @@
+paths:
+  /growatt/device-status:
+    get:
+      summary: Get device status data
+      tags:
+        - Growatt
+      responses:
+        '200':
+          description: Device status data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Device status data retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    nullable: true
+                    properties:
+                      vPv2:
+                        type: string
+                        example: "0.0"
+                      deviceType:
+                        type: string
+                        example: "1"
+                      gridPower:
+                        type: string
+                        example: "0"
+                      loadPower:
+                        type: string
+                        example: "0"
+                      vPv1:
+                        type: string
+                        example: "0.0"
+                      fAcOutput:
+                        type: string
+                        example: "50.0"
+                      invStatus:
+                        type: string
+                        example: "1"
+                      ppv2:
+                        type: string
+                        example: "0"
+                      vBat:
+                        type: string
+                        example: "48.0"
+                      loadPrecent:
+                        type: string
+                        example: "0"
+                      panelPower:
+                        type: string
+                        example: "0"
+                      batPower:
+                        type: string
+                        example: "0"
+                      vAcOutput:
+                        type: string
+                        example: "230.0"
+                      capacity:
+                        type: string
+                        example: "50"
+                      ppv1:
+                        type: string
+                        example: "0"
+                      iPv1:
+                        type: string
+                        example: "0.0"
+                      iPv2:
+                        type: string
+                        example: "0.0"
+                      vAcInput:
+                        type: string
+                        example: "230.0"
+                      fAcInput:
+                        type: string
+                        example: "50.0"
+                      iTotal:
+                        type: string
+                        example: "0.0"
+                      rateVA:
+                        type: string
+                        example: "3000"
+                      status:
+                        type: string
+                        example: "0"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve device status data
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/total-data:
+    get:
+      summary: Get total data of the device
+      tags:
+        - Growatt
+      responses:
+        '200':
+          description: Total data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Total data retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      deviceType:
+                        type: string
+                        example: "1"
+                      useEnergyToday:
+                        type: string
+                        example: "0.0"
+                      chargeToday:
+                        type: string
+                        example: "0.0"
+                      eDischargeTotal:
+                        type: string
+                        example: "0.0"
+                      eDischargeToday:
+                        type: string
+                        example: "0.0"
+                      useEnergyTotal:
+                        type: string
+                        example: "0.0"
+                      eToUserTotal:
+                        type: string
+                        example: "0.0"
+                      epvToday:
+                        type: string
+                        example: "0.0"
+                      epvTotal:
+                        type: string
+                        example: "0.0"
+                      chargeTotal:
+                        type: string
+                        example: "0.0"
+                      eToGridToday:
+                        type: string
+                        example: "0.0"
+                      eToUserToday:
+                        type: string
+                        example: "0.0"
+                      eToGridTotal:
+                        type: string
+                        example: "0.0"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve total data
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/history-data:
+    get:
+      summary: Get history data of the device
+      tags:
+        - Growatt
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Start date (format: YYYY-MM-DD)"
+          example: "2024-01-01"
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "End date (format: YYYY-MM-DD)"
+          example: "2024-01-31"
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            default: 0
+          description: Start page number
+          example: 0
+      responses:
+        '200':
+          description: History data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: History data retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      endDate:
+                        type: string
+                        example: "2024-01-31"
+                      datas:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            serialNum:
+                              type: string
+                            address:
+                              type: number
+                            calendar:
+                              type: object
+                              properties:
+                                year:
+                                  type: number
+                                month:
+                                  type: number
+                                dayOfMonth:
+                                  type: number
+                                hourOfDay:
+                                  type: number
+                                minute:
+                                  type: number
+                                second:
+                                  type: number
+                            withTime:
+                              type: boolean
+                            status:
+                              type: number
+                            pCharge:
+                              type: number
+                            pDischarge:
+                              type: number
+                            vpv:
+                              type: number
+                            ipv:
+                              type: number
+                            iCharge:
+                              type: number
+                            iDischarge:
+                              type: number
+                            ppv:
+                              type: number
+                            vBuck:
+                              type: number
+                            vac:
+                              type: number
+                            iacToUser:
+                              type: number
+                            pacToUser:
+                              type: number
+                            iacToGrid:
+                              type: number
+                            pacToGrid:
+                              type: number
+                            vBat:
+                              type: number
+                            capacity:
+                              type: number
+                            temperature:
+                              type: number
+                            ipmTemperature:
+                              type: number
+                            errorCode:
+                              type: number
+                            warnCode:
+                              type: number
+                            dischargeToStandbyReason:
+                              type: number
+                            chargeToStandbyReason:
+                              type: number
+                            bmsStatus:
+                              type: number
+                            bmsError:
+                              type: number
+                            gaugeBattteryStatus:
+                              type: number
+                            gaugeOperationStatus:
+                              type: number
+                            gaugePackStatus:
+                              type: number
+                            cycleCount:
+                              type: number
+                            maxChargeOrDischargeCurrent:
+                              type: number
+                            bmsCurrent:
+                              type: number
+                            bmsTemperature:
+                              type: number
+                            gaugeICCurrent:
+                              type: number
+                            gaugeRM1:
+                              type: number
+                            gaugeRM2:
+                              type: number
+                            vBus:
+                              type: number
+                            batTemp:
+                              type: number
+                            normalPower:
+                              type: number
+                            remoteCntlEn:
+                              type: number
+                            vpv2:
+                              type: number
+                            ppv2:
+                              type: number
+                            pCharge2:
+                              type: number
+                            pDischarge2:
+                              type: number
+                            vBuck2:
+                              type: number
+                            epvToday2:
+                              type: number
+                            epvTotal2:
+                              type: number
+                            eChargeToday2:
+                              type: number
+                            eChargeTotal2:
+                              type: number
+                            eDischargeToday2:
+                              type: number
+                            eDischargeTotal2:
+                              type: number
+                            remoteCntlFailReason:
+                              type: number
+                            isAgain:
+                              type: boolean
+                            deviceType:
+                              type: number
+                            constantVolt:
+                              type: number
+                            deltaVolt:
+                              type: number
+                            soh:
+                              type: number
+                            warnInfo:
+                              type: number
+                            cellVoltage1:
+                              type: number
+                            cellVoltage2:
+                              type: number
+                            cellVoltage3:
+                              type: number
+                            cellVoltage4:
+                              type: number
+                            cellVoltage5:
+                              type: number
+                            cellVoltage6:
+                              type: number
+                            cellVoltage7:
+                              type: number
+                            cellVoltage8:
+                              type: number
+                            cellVoltage9:
+                              type: number
+                            cellVoltage10:
+                              type: number
+                            bmsStatus2:
+                              type: number
+                            bmsError2:
+                              type: number
+                            constantVolt2:
+                              type: number
+                            deltaVolt2:
+                              type: number
+                            soh2:
+                              type: number
+                            cycleCount2:
+                              type: number
+                            maxChargeOrDischargeCurrent2:
+                              type: number
+                            bmsCurrent2:
+                              type: number
+                            bmsTemperature2:
+                              type: number
+                            warnInfo2:
+                              type: number
+                            gauge2RM1:
+                              type: number
+                            gauge2RM2:
+                              type: number
+                            cell2Voltage1:
+                              type: number
+                            cell2Voltage2:
+                              type: number
+                            cell2Voltage3:
+                              type: number
+                            cell2Voltage4:
+                              type: number
+                            cell2Voltage5:
+                              type: number
+                            cell2Voltage6:
+                              type: number
+                            cell2Voltage7:
+                              type: number
+                            cell2Voltage8:
+                              type: number
+                            cell2Voltage9:
+                              type: number
+                            cell2Voltage10:
+                              type: number
+                            cell2Voltage11:
+                              type: number
+                            cell2Voltage12:
+                              type: number
+                            cell2Voltage13:
+                              type: number
+                            cell2Voltage14:
+                              type: number
+                            cell2Voltage15:
+                              type: number
+                            cell2Voltage16:
+                              type: number
+                            bmsConstantVolt:
+                              type: number
+                            bmsDeltaVolt:
+                              type: number
+                            bmsSoh:
+                              type: number
+                            bmsWarnInfo:
+                              type: number
+                            bmsCellVoltage1:
+                              type: number
+                            bmsCellVoltage2:
+                              type: number
+                            bmsCellVoltage3:
+                              type: number
+                            bmsCellVoltage4:
+                              type: number
+                            bmsCellVoltage5:
+                              type: number
+                            bmsCellVoltage6:
+                              type: number
+                            bmsCellVoltage7:
+                              type: number
+                            bmsCellVoltage8:
+                              type: number
+                            bmsCellVoltage9:
+                              type: number
+                            bmsCellVoltage10:
+                              type: number
+                            bmsCellVoltage11:
+                              type: number
+                            bmsCellVoltage12:
+                              type: number
+                            bmsCellVoltage13:
+                              type: number
+                            bmsCellVoltage14:
+                              type: number
+                            bmsCellVoltage15:
+                              type: number
+                            bmsCellVoltage16:
+                              type: number
+                            rateVA:
+                              type: number
+                            rateWatt:
+                              type: number
+                            chargeMonth:
+                              type: number
+                            dischargeMonth:
+                              type: number
+                            chgCurr:
+                              type: number
+                            dischgCurr:
+                              type: number
+                            eopDischrToday:
+                              type: number
+                            eopDischrTotal:
+                              type: number
+                            InvTemperature:
+                              type: number
+                            DcDcTemperature:
+                              type: number
+                            Buck1_NTCTemperature:
+                              type: number
+                            Buck2_NTCTemperature:
+                              type: number
+                            warnCode2:
+                              type: number
+                            bmsSoc:
+                              type: number
+                            bmsBatteryVolt:
+                              type: number
+                            bmsBatteryCurr:
+                              type: number
+                            bmsBatteryTemp:
+                              type: number
+                            bmsMaxCurrChg:
+                              type: number
+                            bmsCvolt:
+                              type: number
+                            bmsInfo:
+                              type: number
+                            bmsPackInfo:
+                              type: number
+                            bmsUsingCap:
+                              type: number
+                            bmsCellVolt1:
+                              type: number
+                            bmsCellVolt2:
+                              type: number
+                            bmsCellVolt3:
+                              type: number
+                            bmsCellVolt4:
+                              type: number
+                            bmsCellVolt5:
+                              type: number
+                            bmsCellVolt6:
+                              type: number
+                            bmsCellVolt7:
+                              type: number
+                            bmsCellVolt8:
+                              type: number
+                            bmsCellVolt9:
+                              type: number
+                            bmsCellVolt10:
+                              type: number
+                            bmsCellVolt11:
+                              type: number
+                            bmsCellVolt12:
+                              type: number
+                            bmsCellVolt13:
+                              type: number
+                            bmsCellVolt14:
+                              type: number
+                            bmsCellVolt15:
+                              type: number
+                            bmsCellVolt16:
+                              type: number
+                            moduleId:
+                              type: number
+                            moduleTotalVolt:
+                              type: number
+                            moduleTotalCurr:
+                              type: number
+                            moduleSoc:
+                              type: number
+                            moduleStatus:
+                              type: number
+                            batProtect1:
+                              type: number
+                            batWarnInfo1:
+                              type: number
+                            packNum:
+                              type: number
+                            batDepowerReason:
+                              type: number
+                            gaugeRM:
+                              type: number
+                            gaugeFCC:
+                              type: number
+                            requestBatteryType:
+                              type: number
+                            maxCellVolt:
+                              type: number
+                            minCellVolt:
+                              type: number
+                            maxminCellVoltNum:
+                              type: number
+                            protectPackID:
+                              type: number
+                            manufacture:
+                              type: number
+                            hardwareVersion:
+                              type: number
+                            parallelHightSoftwarVer:
+                              type: number
+                            maxCellTemp:
+                              type: number
+                            minCellTemp:
+                              type: number
+                            maxminCellTempSerialNum:
+                              type: number
+                            maxminSoc:
+                              type: number
+                            totalCellNum:
+                              type: number
+                            batProtect2:
+                              type: number
+                            batProtect3:
+                              type: number
+                            batWarnInfo2:
+                              type: number
+                            updateStatus:
+                              type: number
+                            batSerialNumId:
+                              type: number
+                            moduleId2:
+                              type: number
+                            module2MaxVolt:
+                              type: number
+                            module2MinVolt:
+                              type: number
+                            module2MaxTemp:
+                              type: number
+                            module2MinTemp:
+                              type: number
+                            doStatus:
+                              type: number
+                            dsgBatNum:
+                              type: number
+                            dsgEnergy:
+                              type: number
+                            chgBatNum:
+                              type: number
+                            chgEnergy:
+                              type: number
+                            floatChargeVolt:
+                              type: number
+                            eGenDischrToday:
+                              type: number
+                            eGenDischrTotal:
+                              type: number
+                            eGenDischrPower:
+                              type: number
+                            genVolt:
+                              type: number
+                            eBatChgToday:
+                              type: number
+                            eBatChgTotal:
+                              type: number
+                            lLCTemperature:
+                              type: number
+                            envTemperature:
+                              type: number
+                            vGrid2:
+                              type: number
+                            iAcCharge1:
+                              type: number
+                            iAcCharge2:
+                              type: number
+                            pAcInPut1:
+                              type: number
+                            pAcInPut2:
+                              type: number
+                            pAcOutPut:
+                              type: number
+                            outPutVolt2:
+                              type: number
+                            outPutCurrent2:
+                              type: number
+                            outPutPower1:
+                              type: number
+                            outPutPower2:
+                              type: number
+                            loadPercent1:
+                              type: number
+                            loadPercent2:
+                              type: number
+                            genVolt2:
+                              type: number
+                            eGenDischrPower1:
+                              type: number
+                            eGenDischrPower2:
+                              type: number
+                            genCurrent:
+                              type: number
+                            genCurrent1:
+                              type: number
+                            genCurrent2:
+                              type: number
+                            warnCode3:
+                              type: number
+                            qBat:
+                              type: number
+                            vGrid3:
+                              type: number
+                            iAcCharge3:
+                              type: number
+                            pAcInPut3:
+                              type: number
+                            genVolt3:
+                              type: number
+                            genCurrent3:
+                              type: number
+                            eGenDischrPower3:
+                              type: number
+                            outPutVolt3:
+                              type: number
+                            outPutCurrent3:
+                              type: number
+                            outPutPower3:
+                              type: number
+                            loadPercent3:
+                              type: number
+                            chargeMap:
+                              type: object
+                              additionalProperties:
+                                type: number
+                            dischargeMap:
+                              type: object
+                              additionalProperties:
+                                type: number
+                            faultCode:
+                              type: number
+                            epvToday:
+                              type: number
+                            epvTotal:
+                              type: number
+                            eChargeToday:
+                              type: number
+                            eChargeTotal:
+                              type: number
+                            eDischargeToday:
+                              type: number
+                            eDischargeTotal:
+                              type: number
+                            eToUserToday:
+                              type: number
+                            eToUserTotal:
+                              type: number
+                            eToGridToday:
+                              type: number
+                            eToGridTotal:
+                              type: number
+                            lost:
+                              type: boolean
+                            chargeWay:
+                              type: number
+                            iChargePV1:
+                              type: number
+                            iChargePV2:
+                              type: number
+                            outPutPower:
+                              type: number
+                            pAcCharge:
+                              type: number
+                            vGrid:
+                              type: number
+                            freqGrid:
+                              type: number
+                            outPutVolt:
+                              type: number
+                            freqOutPut:
+                              type: number
+                            loadPercent:
+                              type: number
+                            outPutCurrent:
+                              type: number
+                            eacChargeToday:
+                              type: number
+                            eacChargeTotal:
+                              type: number
+                            eBatDisChargeToday:
+                              type: number
+                            eBatDisChargeTotal:
+                              type: number
+                            eacDisChargeToday:
+                              type: number
+                            eacDisChargeTotal:
+                              type: number
+                            iAcCharge:
+                              type: number
+                            pAcInPut:
+                              type: number
+                            pBat:
+                              type: number
+                            powSavingEn:
+                              type: number
+                            uwBatType2:
+                              type: number
+                            bLightEn:
+                              type: number
+                            manualStartEn:
+                              type: number
+                            sciLossChkEn:
+                              type: number
+                      start:
+                        type: number
+                        example: 0
+                      haveNext:
+                        type: boolean
+                        example: false
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve history data
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/relogin:
+    post:
+      summary: Relogin to the Growatt server
+      tags:
+        - Growatt
+      responses:
+        '200':
+          description: Re-login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Re-login successful
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      connected:
+                        type: boolean
+                        example: true
+                      plantId:
+                        type: string
+                        nullable: true
+                        example: "123456"
+                      device:
+                        type: string
+                        nullable: true
+                        example: "SP3000-ABC123"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to re-login
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/subscription-status:
+    get:
+      summary: Get current subscription status
+      tags:
+        - Growatt
+      responses:
+        '200':
+          description: Subscription status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Subscription status retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      connected:
+                        type: boolean
+                        example: true
+                      plantId:
+                        type: string
+                        nullable: true
+                        example: "123456"
+                      device:
+                        type: string
+                        nullable: true
+                        example: "SP3000-ABC123"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Growatt: Subscription status not available"
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/plant-weather-data:
+    get:
+      summary: Get plant weather data
+      tags:
+        - Growatt
+      responses:
+        '200':
+          description: Plant weather data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Plant weather data retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                        example: "New York"
+                      Week:
+                        type: string
+                        example: "Monday"
+                      dataStr:
+                        type: string
+                        example: "2024-01-01"
+                      data:
+                        type: object
+                        properties:
+                          HeWeather6:
+                            type: array
+                            items:
+                              type: object
+                      radiant:
+                        type: string
+                        example: "100"
+                      tempType:
+                        type: number
+                        example: 1
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve plant weather data
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/plant-fault-log:
+    get:
+      summary: Get plant fault log
+      tags:
+        - Growatt
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Date (format: YYYY-MM-DD)"
+          example: "2024-01-01"
+        - name: toPageNum
+          in: query
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            default: 1
+          description: Page number
+          example: 1
+      responses:
+        '200':
+          description: Plant fault log retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Plant fault log retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      pages:
+                        type: number
+                        example: 10
+                      currPage:
+                        type: number
+                        example: 1
+                      datas:
+                        type: array
+                        items:
+                          type: object
+                      count:
+                        type: number
+                        example: 100
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve plant fault log
+                  status:
+                    type: number
+                    example: 500
+

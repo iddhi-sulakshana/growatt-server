@@ -4,6 +4,7 @@ import cors from "cors";
 import { configMorgan } from "./configs";
 import { initializeRoutes } from "./routes";
 import errorHandler from "./middlewares/error";
+import configSwagger from "./configs/swagger";
 
 export default function initializeServer() {
     const app = express();
@@ -30,6 +31,9 @@ export default function initializeServer() {
 
     // logging http requests with morgan
     configMorgan(app);
+
+    // configure swagger
+    configSwagger(app);
 
     // Mount the routes module
     initializeRoutes(app);
