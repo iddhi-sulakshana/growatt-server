@@ -1,6 +1,6 @@
 import { memo } from "react";
 import BatteryNode from "./CustomNodes/BatteryNode";
-import ConsumeNode from "./CustomNodes/ConsumeNode";
+import LoadNode from "./CustomNodes/LoadNode";
 import GridNode from "./CustomNodes/GridNode";
 import InverterNode from "./CustomNodes/InverterNode";
 import SolarNode from "./CustomNodes/SolarNode";
@@ -15,7 +15,7 @@ function CustomNode({ data }: { data: { id: string } }) {
     }
 
     if (data.id === "consumption") {
-        return <ConsumeNode />;
+        return <LoadNode />;
     }
 
     if (data.id === "solar1" || data.id === "solar2") {

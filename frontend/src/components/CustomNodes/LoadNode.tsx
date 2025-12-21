@@ -2,23 +2,30 @@ import { Zap } from "lucide-react";
 import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
-import FrequencyWave from "../FrequencyWave";
-
-const ConsumeNode = () => {
+import GaugeChart from "react-gauge-chart";
+const LoadNode = () => {
     const { data } = getDeviceStatusService();
     const loadPower = Number(data?.data?.loadPower ?? 0);
+    const loadPercent = Number(data?.data?.loadPrecent ?? 0);
     const isOnline =
         Number(data?.data?.loadPower ?? 0) !== 0 ||
         Number(data?.data?.vAcOutput ?? 0) !== 0;
-
-    const frequency = Number(data?.data?.fAcOutput ?? 0); // typically from 40 - 65
 
     return (
         <div className="flex flex-col items-center">
             {/* Icon or Frequency Wave */}
             <div className="w-16 h-16 flex justify-center items-center">
-                {isOnline && frequency > 0 ? (
-                    <FrequencyWave frequency={frequency} color="#f59e0b" />
+                {isOnline ? (
+                    <GaugeChart
+                        id="load-gauge"
+                        nrOfLevels={10}
+                        percent={loadPercent / 100}
+                        colors={["#22c55e", "#f59e0b", "#ef4444"]}
+                        arcWidth={0.3}
+                        textColor="#374151"
+                        needleColor="#374151"
+                        hideText={true}
+                    />
                 ) : (
                     <Zap className="w-13 h-13 text-gray-500" />
                 )}
@@ -54,4 +61,4 @@ const ConsumeNode = () => {
     );
 };
 
-export default ConsumeNode;
+export default LoadNode;
