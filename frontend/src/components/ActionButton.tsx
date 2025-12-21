@@ -2,15 +2,10 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/AuthStore";
 import { Button } from "./ui/button";
-import { LogOut, Menu, X, BarChart3, Activity, LayoutDashboard, TrendingUp } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface ActionButtonProps {
-    onViewChange?: (view: 0 | 1) => void;
-    currentView?: 0 | 1;
-}
-
-const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
+const ActionButton = () => {
     const [isOpen, setIsOpen] = useState(false);
     const logout = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
@@ -25,9 +20,9 @@ const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
                 navigate("/dashboard");
                 setIsOpen(false);
             },
-            variant: (location.pathname === "/dashboard" ? "default" : "outline") as
-                | "default"
-                | "outline",
+            variant: (location.pathname === "/dashboard"
+                ? "default"
+                : "outline") as "default" | "outline",
         },
         // Analytics navigation button
         {
@@ -37,9 +32,9 @@ const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
                 navigate("/analytics");
                 setIsOpen(false);
             },
-            variant: (location.pathname === "/analytics" ? "default" : "outline") as
-                | "default"
-                | "outline",
+            variant: (location.pathname === "/analytics"
+                ? "default"
+                : "outline") as "default" | "outline",
         },
         {
             icon: LogOut,
@@ -50,44 +45,6 @@ const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
             },
             variant: "destructive" as const,
         },
-        // Dashboard-specific view toggle buttons (only show on dashboard)
-        ...(location.pathname === "/dashboard" && onViewChange
-            ? [
-                  {
-                      icon: BarChart3,
-                      label: "Total Metrics",
-                      onClick: () => {
-                          onViewChange(0);
-                          setIsOpen(false);
-                      },
-                      variant: (currentView === 0 ? "default" : "outline") as
-                          | "default"
-                          | "outline",
-                  },
-                  {
-                      icon: Activity,
-                      label: "Live Metrics",
-                      onClick: () => {
-                          onViewChange(1);
-                          setIsOpen(false);
-                      },
-                      variant: (currentView === 1 ? "default" : "outline") as
-                          | "default"
-                          | "outline",
-                  },
-              ]
-            : []),
-        // {
-        //     icon: Settings,
-        //     label: "Settings",
-        //     onClick: () => {
-        //         // Add settings action here
-        //         console.log("Settings clicked");
-        //         setIsOpen(false);
-        //     },
-        //     variant: "outline" as const,
-        // },
-        
     ] as const;
 
     return (
