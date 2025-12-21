@@ -388,16 +388,18 @@ const Metrics = () => {
                 <div className="flex flex-col items-center justify-center h-2/5 gap-2">
                     <Zap
                         className={`w-full h-full ${
-                            Number(deviceStatus?.data?.gridPower || 0) === 0
-                                ? "text-gray-500"
-                                : "text-red-500"
+                            Number(deviceStatus?.data?.gridPower || 0) !== 0 || Number(deviceStatus?.data?.vAcInput || 0) !== 0
+                                ? "text-red-500"
+                                : "text-gray-500"
                         }`}
                     />
                     <p className="md:text-md text-xs font-extrabold font-mono">
                         Grid (
-                        {Number(deviceStatus?.data?.gridPower || 0) === 0
-                            ? "Offline"
-                            : "Online"}
+                        {Number(deviceStatus?.data?.gridPower || 0) !== 0
+                            ? "Online"
+                            : Number(deviceStatus?.data?.vAcInput || 0) !== 0
+                                ? "Standby"
+                            : "Offline"}
                         )
                     </p>
                 </div>

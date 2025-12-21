@@ -165,8 +165,12 @@ function CustomNode({
         }
         return `transition-colors duration-[${transitionDuration}ms]`;
     };
-    if (value === 0 && data.id !== "inverter") {
+    
+    if (value === 0 && data.id !== "inverter" ) {
         handleClassName = "gray-500";
+    }
+    if (data.id === "grid" && Number(deviceStatus?.data?.vAcInput || 0) !== 0){
+        handleClassName = "red-500";
     }
 
     let valueString;
