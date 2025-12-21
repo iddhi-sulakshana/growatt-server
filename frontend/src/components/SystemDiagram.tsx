@@ -231,7 +231,7 @@ const SystemDiagram = () => {
                 nodesFocusable={false}
                 edgesFocusable={false}
                 edgesReconnectable={false}
-                elementsSelectable={false}
+                elementsSelectable={true}
                 selectNodesOnDrag={false}
                 panActivationKeyCode={null}
                 nodeTypes={{
