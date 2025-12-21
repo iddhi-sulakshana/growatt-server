@@ -2,8 +2,7 @@ import { SolarPanel } from "lucide-react";
 import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
-import GaugeChart from "react-gauge-chart";
-
+import ReactSpeedometer from "react-d3-speedometer";
 const SolarNode = ({ id }: { id: 1 | 2 }) => {
     const { data } = getDeviceStatusService();
     const solarPower = Number(data?.data?.[`ppv${id}`] ?? 0);
@@ -12,28 +11,26 @@ const SolarNode = ({ id }: { id: 1 | 2 }) => {
         Number(data?.data?.[`vPv${id}`] ?? 0) !== 0;
 
     const maximumSolarPower = 3500;
-    const solarPercent = solarPower / maximumSolarPower;
 
     return (
         <div className="flex flex-col items-center">
             {/* Icon or Frequency Wave */}
             <div className="w-16 h-16 flex justify-center items-center">
                 {isOnline ? (
-                    <div className="flex flex-col items-center w-full">
-                        <GaugeChart
-                            id="solar-gauge"
-                            nrOfLevels={10}
-                            percent={solarPercent}
-                            colors={["#ef4444", "#f59e0b", "#22c55e"]}
-                            arcWidth={0.3}
-                            textColor="#374151"
-                            needleColor="#374151"
-                            hideText={true}
-                        />
-                        <p className="text-xs">
-                            {Math.round(solarPercent * 100)}%
-                        </p>
-                    </div>
+                    <ReactSpeedometer
+                        width={100}
+                        height={100}
+                        minValue={0}
+                        maxValue={maximumSolarPower}
+                        value={solarPower}
+                        segments={10}
+                        needleHeightRatio={0.5}
+                        ringWidth={10}
+                        startColor="#FF471A"
+                        endColor="#33CC33"
+                        labelFontSize="0px"
+                        valueTextFontSize="0px"
+                    />
                 ) : (
                     <SolarPanel className="w-13 h-13 text-gray-500" />
                 )}

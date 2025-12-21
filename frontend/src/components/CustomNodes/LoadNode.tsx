@@ -2,7 +2,7 @@ import { Zap } from "lucide-react";
 import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
-import GaugeChart from "react-gauge-chart";
+import ReactSpeedometer from "react-d3-speedometer";
 const LoadNode = () => {
     const { data } = getDeviceStatusService();
     const loadPower = Number(data?.data?.loadPower ?? 0);
@@ -16,15 +16,19 @@ const LoadNode = () => {
             {/* Icon or Frequency Wave */}
             <div className="w-16 h-16 flex justify-center items-center">
                 {isOnline ? (
-                    <GaugeChart
-                        id="load-gauge"
-                        nrOfLevels={10}
-                        percent={loadPercent / 100}
-                        colors={["#22c55e", "#f59e0b", "#ef4444"]}
-                        arcWidth={0.3}
-                        textColor="#374151"
-                        needleColor="#374151"
-                        hideText={true}
+                    <ReactSpeedometer
+                        width={100}
+                        height={100}
+                        minValue={0}
+                        maxValue={100}
+                        value={loadPercent}
+                        segments={10}
+                        needleHeightRatio={0.5}
+                        ringWidth={10}
+                        startColor="#33CC33"
+                        endColor="#FF471A"
+                        labelFontSize="0px"
+                        valueTextFontSize="0px"
                     />
                 ) : (
                     <Zap className="w-13 h-13 text-gray-500" />

@@ -43,7 +43,7 @@ const InverterNode = () => {
             <Handle
                 type="target"
                 position={Position.Bottom}
-                id="bottom"
+                id="bottom-target"
                 className="bg-blue-500!"
             />
 
