@@ -5,7 +5,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import SystemDiagram from "@/components/SystemDiagram";
 import ActionButton from "@/components/ActionButton";
-import LiveMetrics from "@/components/LiveMetrics";
 
 const Dashboard = () => {
     const { data: deviceStatus, isError, isLoading } = getDeviceStatusService();
