@@ -3,6 +3,11 @@ import { Handle, Position, useHandleConnections } from "@xyflow/react";
 import { Battery, Home, ServerCrash, SolarPanel, Zap } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
+import BatteryNode from "./CustomNodes/BatteryNode";
+import GridNode from "./CustomNodes/GridNode";
+import ConsumeNode from "./CustomNodes/ConsumeNode";
+import SolarNode from "./CustomNodes/SolarNode";
+import InverterNode from "./CustomNodes/InverterNode";
 
 const iconMap = {
     grid: Zap,
@@ -165,11 +170,11 @@ function CustomNode({
         }
         return `transition-colors duration-[${transitionDuration}ms]`;
     };
-    
-    if (value === 0 && data.id !== "inverter" ) {
+
+    if (value === 0 && data.id !== "inverter") {
         handleClassName = "gray-500";
     }
-    if (data.id === "grid" && Number(deviceStatus?.data?.vAcInput || 0) !== 0){
+    if (data.id === "grid" && Number(deviceStatus?.data?.vAcInput || 0) !== 0) {
         handleClassName = "red-500";
     }
 
@@ -178,6 +183,26 @@ function CustomNode({
         default:
             valueString = "W";
             break;
+    }
+
+    if (data.id === "battery") {
+        return <BatteryNode />;
+    }
+
+    if (data.id === "grid") {
+        return <GridNode />;
+    }
+
+    if (data.id === "consumption") {
+        return <ConsumeNode />;
+    }
+
+    if (data.id === "solar1" || data.id === "solar2") {
+        return <SolarNode id={data.id === "solar1" ? 1 : 2} />;
+    }
+
+    if (data.id === "inverter") {
+        return <InverterNode />;
     }
 
     return (
