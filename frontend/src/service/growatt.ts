@@ -1,6 +1,6 @@
 import { getDeviceStatusApi, getTotalDataApi, getHistoryDataApi } from "@/api/growatt";
 import { useQuery } from "@tanstack/react-query";
-import type { DeviceHistoryData, HistoryDataRequest } from "@/types/growatt";
+import type { DeviceHistoryData } from "@/types/growatt";
 
 export const getDeviceStatusService = () => {
     return useQuery({
