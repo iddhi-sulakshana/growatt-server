@@ -1,8 +1,10 @@
 import ApiClient from "@/lib/ApiClient";
 import type { DataResponse } from "@/types/api-contract";
 import type {
+    DeviceHistoryDataList,
     DeviceTotalData,
     GrowattDeviceStatusResponse,
+    HistoryDataRequest,
 } from "@/types/growatt";
 
 export const getDeviceStatusApi = async () => {
@@ -16,6 +18,17 @@ export const getDeviceStatusApi = async () => {
 export const getTotalDataApi = async () => {
     const response = await ApiClient.get<DataResponse<DeviceTotalData>>(
         "/growatt/total-data"
+    );
+
+    return response.data;
+};
+
+export const getHistoryDataApi = async (payload: HistoryDataRequest) => {
+    const response = await ApiClient.get<DataResponse<DeviceHistoryDataList>>(
+        "/growatt/history-data",
+        {
+            params: payload,
+        }
     );
 
     return response.data;

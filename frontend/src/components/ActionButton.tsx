@@ -41,6 +41,15 @@ const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
                 | "default"
                 | "outline",
         },
+        {
+            icon: LogOut,
+            label: "Logout",
+            onClick: () => {
+                logout();
+                setIsOpen(false);
+            },
+            variant: "destructive" as const,
+        },
         // Dashboard-specific view toggle buttons (only show on dashboard)
         ...(location.pathname === "/dashboard" && onViewChange
             ? [
@@ -78,15 +87,7 @@ const ActionButton = ({ onViewChange, currentView }: ActionButtonProps) => {
         //     },
         //     variant: "outline" as const,
         // },
-        {
-            icon: LogOut,
-            label: "Logout",
-            onClick: () => {
-                logout();
-                setIsOpen(false);
-            },
-            variant: "destructive" as const,
-        },
+        
     ] as const;
 
     return (
