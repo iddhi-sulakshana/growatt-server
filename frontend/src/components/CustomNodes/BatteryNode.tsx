@@ -1,4 +1,10 @@
-import { Battery, BatteryLow, BatteryMedium, BatteryFull } from "lucide-react";
+import {
+    BatteryWarning,
+    Battery,
+    BatteryLow,
+    BatteryMedium,
+    BatteryFull,
+} from "lucide-react";
 import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
@@ -13,12 +19,46 @@ import LiveBattery from "../HoverCards/LiveBattery";
 const BatteryNode = () => {
     const { data } = getDeviceStatusService();
     const batteryPower = Math.abs(Number(data?.data?.batPower ?? 0));
+
+    const batteryVoltage = Number(data?.data?.vBat ?? 0); // in V
     const isCharging = Number(data?.data?.batPower ?? 0) < 0;
     const [chargingIconIndex, setChargingIconIndex] = useState(0);
     const chargingIcons = [Battery, BatteryLow, BatteryMedium, BatteryFull];
+
+    const BAT_LOW = 45; // 45V
+    const BAT_WARNING = 46.5; // 46.5V - Warning threshold
+    const BAT_MAX = 58.4; // 58.4V
+
+    // Get battery icon based on voltage level
+    const getBatteryIcon = () => {
+        if (batteryVoltage < BAT_WARNING) {
+            return BatteryWarning;
+        }
+
+        // Calculate percentage based on voltage range
+        const percentage =
+            ((batteryVoltage - BAT_LOW) / (BAT_MAX - BAT_LOW)) * 100;
+
+        if (percentage <= 25) {
+            return BatteryLow;
+        } else if (percentage <= 60) {
+            return BatteryMedium;
+        } else {
+            return BatteryFull;
+        }
+    };
+
+    // Get battery color based on voltage
+    const getBatteryColor = () => {
+        if (batteryVoltage < BAT_WARNING) {
+            return "text-orange-500";
+        }
+
+        return "text-blue-500";
+    };
+
     useEffect(() => {
         if (!isCharging) {
-            setChargingIconIndex(2);
             return;
         }
 
@@ -30,6 +70,9 @@ const BatteryNode = () => {
     }, [isCharging]);
 
     const ChargingIcon = chargingIcons[chargingIconIndex];
+    const BatteryIcon = getBatteryIcon();
+    const batteryColor = getBatteryColor();
+    const isWarning = batteryVoltage < BAT_WARNING;
 
     return (
         <HoverCard>
@@ -42,10 +85,10 @@ const BatteryNode = () => {
                                 className={`w-13 h-13 text-blue-500`}
                             />
                         ) : (
-                            <Battery
-                                className={`w-13 h-13 text-${
-                                    batteryPower > 0 ? "blue" : "gray"
-                                }-500`}
+                            <BatteryIcon
+                                className={`w-13 h-13 ${batteryColor} ${
+                                    isWarning ? "animate-pulse" : ""
+                                }`}
                             />
                         )}
                     </div>
@@ -59,6 +102,9 @@ const BatteryNode = () => {
                                 decimals={0}
                                 suffix="W"
                             />
+                        </p>
+                        <p className="text-yellow-500 italic">
+                            {isWarning && "Low battery"}
                         </p>
                     </div>
 
