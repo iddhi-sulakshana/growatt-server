@@ -102,7 +102,6 @@ const BatteryNode = () => {
 
                     {/* Value */}
                     <div className="text-sm font-semibold text-center whitespace-nowrap">
-                        <p className="text-xs">Battery</p>
                         <p className={`text-lg font-sans font-bold`}>
                             <AnimatedNumber
                                 value={batteryPower}
