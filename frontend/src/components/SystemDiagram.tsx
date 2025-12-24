@@ -16,20 +16,20 @@ const initialNodes: Node[] = [
     // Solar panels - centered above inverter
     {
         id: "solar1",
-        position: { x: 150, y: 0 },
+        position: { x: 120, y: -25 },
         data: { icon: "solar", name: "Solar 1", id: "solar1" },
         type: "custom",
     },
     {
         id: "solar2",
-        position: { x: 300, y: 0 },
+        position: { x: 330, y: -25 },
         data: { icon: "solar", name: "Solar 2", id: "solar2" },
         type: "custom",
     },
     // Grid import - left side
     {
         id: "grid",
-        position: { x: 50, y: 180 },
+        position: { x: 30, y: 180 },
         data: { icon: "grid", name: "Grid", id: "grid" },
         type: "custom",
     },
@@ -43,14 +43,14 @@ const initialNodes: Node[] = [
     // Consumption - right side
     {
         id: "consumption",
-        position: { x: 400, y: 180 },
+        position: { x: 420, y: 180 },
         data: { icon: "consumption", name: "Consumption", id: "consumption" },
         type: "custom",
     },
     // Battery - centered below inverter
     {
         id: "battery",
-        position: { x: 225, y: 330 },
+        position: { x: 225, y: 350 },
         data: { icon: "battery", name: "Battery", id: "battery" },
         type: "custom",
     },

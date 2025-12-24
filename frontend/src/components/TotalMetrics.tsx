@@ -1,14 +1,5 @@
 import { getTotalDataService } from "@/service/growatt";
-import {
-    Sun,
-    Battery,
-    Zap,
-    Home,
-    Power,
-    Loader2,
-    AlertCircle,
-    BatteryCharging,
-} from "lucide-react";
+import { Sun, Battery, Home, Power } from "lucide-react";
 import { Separator } from "./ui/separator";
 
 interface MetricCard {
@@ -20,11 +11,7 @@ interface MetricCard {
 }
 
 const TotalMetrics = () => {
-    const {
-        data: totalData,
-        isError: isTotalDataError,
-        isLoading: isTotalDataLoading,
-    } = getTotalDataService();
+    const { data: totalData } = getTotalDataService();
 
     // Define metric configurations with data field mappings
     const metricConfigs = [
@@ -43,13 +30,6 @@ const TotalMetrics = () => {
             totalField: "eDischargeTotal",
         },
         {
-            title: "Charging",
-            icon: BatteryCharging,
-            iconColor: "text-purple-500",
-            todayField: "chargeToday",
-            totalField: "chargeTotal",
-        },
-        {
             title: "Imported from Grid",
             icon: Power,
             iconColor: "text-orange-500",
@@ -62,13 +42,6 @@ const TotalMetrics = () => {
             iconColor: "text-red-500",
             todayField: "useEnergyToday",
             totalField: "useEnergyTotal",
-        },
-        {
-            title: "Grid-tied",
-            icon: Zap,
-            iconColor: "text-gray-500",
-            todayField: "eToGridToday",
-            totalField: "eToGridTotal",
         },
     ];
 
@@ -100,25 +73,6 @@ const TotalMetrics = () => {
               )
             : 0,
     }));
-
-    if (isTotalDataLoading) {
-        return (
-            <div className="col-span-full flex items-center justify-center p-8">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            </div>
-        );
-    }
-
-    if (isTotalDataError) {
-        return (
-            <div className="col-span-full flex items-center justify-center p-8">
-                <div className="flex items-center gap-2 text-red-500">
-                    <AlertCircle className="w-6 h-6" />
-                    <span>Failed to load metrics data</span>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <>

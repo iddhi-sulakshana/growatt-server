@@ -51,7 +51,7 @@ const BatteryNode = () => {
     // Get battery color based on voltage
     const getBatteryColor = () => {
         if (batteryVoltage < BAT_WARNING) {
-            return "text-orange-500";
+            return "text-red-500";
         }
 
         return "text-blue-500";
@@ -79,7 +79,7 @@ const BatteryNode = () => {
             <HoverCardTrigger>
                 <div className="flex flex-col items-center">
                     {/* Icon */}
-                    <div className="w-16 h-16 flex justify-center items-center">
+                    <div className="flex flex-col w-16 h-16 justify-center items-center">
                         {isCharging ? (
                             <ChargingIcon
                                 className={`w-13 h-13 text-blue-500`}
@@ -91,20 +91,27 @@ const BatteryNode = () => {
                                 }`}
                             />
                         )}
+                        <p className={`text-xs font-sans font-semibold`}>
+                            <AnimatedNumber
+                                value={batteryVoltage}
+                                decimals={2}
+                                suffix="V"
+                            />
+                        </p>
                     </div>
 
                     {/* Value */}
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                    <div className="text-sm font-semibold text-center whitespace-nowrap">
                         <p className="text-xs">Battery</p>
-                        <p className={`text-xs font-mono `}>
+                        <p className={`text-lg font-sans font-bold`}>
                             <AnimatedNumber
                                 value={batteryPower}
                                 decimals={0}
                                 suffix="W"
                             />
                         </p>
-                        <p className="text-yellow-500 italic">
-                            {isWarning && "Low battery"}
+                        <p className="text-red-500 text-xs italic animate-pulse">
+                            {isWarning && "Critical"}
                         </p>
                     </div>
 

@@ -18,8 +18,8 @@ const InverterNode = () => {
             <HoverCardTrigger>
                 <div className="flex flex-col items-center">
                     {/* Value */}
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
-                        <p className={`text-xs font-mono `}>
+                    <div className="text-sm font-semibold text-center whitespace-nowrap">
+                        <p className={`text-lg font-sans font-bold`}>
                             {totalSolar > 0 ? (
                                 <AnimatedNumber
                                     value={totalSolar}

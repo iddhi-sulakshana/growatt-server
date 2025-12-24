@@ -84,8 +84,12 @@ const AnimatedNumber = ({
 
     return (
         <span className={getValueColorClass()}>
-            {displayValue.toFixed(decimals)}
-            {suffix && <span className="text-xs">{suffix}</span>}
+            {displayValue.toFixed(decimals)}{" "}
+            {suffix && (
+                <span className="font-mono font-semibold text-xs">
+                    {suffix}
+                </span>
+            )}
         </span>
     );
 };

@@ -21,7 +21,7 @@ const LoadNode = () => {
             <HoverCardTrigger>
                 <div className="flex flex-col items-center">
                     {/* Icon or Frequency Wave */}
-                    <div className="w-16 h-16 flex justify-center items-center">
+                    <div className="w-16 h-16 flex justify-center items-baseline">
                         {isOnline ? (
                             <ReactSpeedometer
                                 width={100}
@@ -43,9 +43,9 @@ const LoadNode = () => {
                     </div>
 
                     {/* Value */}
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                    <div className="text-sm font-semibold text-center whitespace-nowrap">
                         <p className="text-xs">Consumption</p>
-                        <p className={`text-xs font-mono `}>
+                        <p className={`text-lg font-sans font-bold`}>
                             {loadPower > 0 ? (
                                 <AnimatedNumber
                                     value={loadPower}

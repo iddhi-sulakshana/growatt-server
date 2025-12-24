@@ -23,7 +23,7 @@ const SolarNode = ({ id }: { id: 1 | 2 }) => {
             <HoverCardTrigger>
                 <div className="flex flex-col items-center">
                     {/* Icon or Frequency Wave */}
-                    <div className="w-16 h-16 flex justify-center items-center">
+                    <div className="w-16 h-16 flex justify-center items-baseline">
                         {isOnline ? (
                             <ReactSpeedometer
                                 width={100}
@@ -45,9 +45,9 @@ const SolarNode = ({ id }: { id: 1 | 2 }) => {
                     </div>
 
                     {/* Value */}
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                    <div className="text-sm font-semibold text-center whitespace-nowrap">
                         <p className="text-xs">Solar {id}</p>
-                        <p className={`text-xs font-mono `}>
+                        <p className={`text-lg font-sans font-bold`}>
                             {solarPower > 0 ? (
                                 <AnimatedNumber
                                     value={solarPower}

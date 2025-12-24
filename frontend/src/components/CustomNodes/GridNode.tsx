@@ -35,9 +35,9 @@ const GridNode = () => {
                     </div>
 
                     {/* Value */}
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                    <div className="text-sm font-semibold text-center whitespace-nowrap">
                         <p className="text-xs">Grid</p>
-                        <p className={`text-xs font-mono `}>
+                        <p className={`text-lg font-sans font-bold`}>
                             {gridPower > 0 ? (
                                 <AnimatedNumber
                                     value={gridPower}
