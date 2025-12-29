@@ -2,9 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 import HTTP_STATUS from "@/types/status-codes";
 import { verifyAccessToken } from "@/utils/jwt";
 import winston from "winston";
-import { AdminRepository } from "@/database/repositories";
+// import { AdminRepository } from "@/database/repositories";
 
-const adminRepository = new AdminRepository();
+// const adminRepository = new AdminRepository();
 
 export type ApiRequestUser = {
     id: number;
@@ -39,21 +39,26 @@ export function authorize() {
             // Verify the JWT token
             const decoded = verifyAccessToken(token);
 
-            // Retrieve the admin from the database
-            const adminUser = await adminRepository.findById(decoded.id);
+            // // Retrieve the admin from the database
+            // const adminUser = await adminRepository.findById(decoded.id);
 
-            if (!adminUser) {
-                return res.sendResponse({
-                    status: HTTP_STATUS.UNAUTHORIZED,
-                    message: "Access denied: User not found",
-                    data: undefined,
-                });
-            }
+            // if (!adminUser) {
+            //     return res.sendResponse({
+            //         status: HTTP_STATUS.UNAUTHORIZED,
+            //         message: "Access denied: User not found",
+            //         data: undefined,
+            //     });
+            // }
 
             // Attach the user to the request object
+            // req.user = {
+            //     id: adminUser.id,
+            //     username: adminUser.username,
+            // };
+
             req.user = {
-                id: adminUser.id,
-                username: adminUser.username,
+                id: decoded.id,
+                username: decoded.username,
             };
 
             next();

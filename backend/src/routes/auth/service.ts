@@ -1,38 +1,57 @@
-import argon2 from "argon2";
+// import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { ENV } from "@/configs";
 import type { DataResponse } from "@/types/api-contract";
 import type { LoginRequest, LoginResponse } from "./dto";
 import HTTP_STATUS from "@/types/status-codes";
 import { ApiError } from "@/types/api-contract";
-import { AdminRepository } from "@/database/repositories";
+// import { AdminRepository } from "@/database/repositories";
 
-const adminRepository = new AdminRepository();
+// const adminRepository = new AdminRepository();
 
 export async function loginService(
     loginData: LoginRequest
 ): Promise<DataResponse<LoginResponse>> {
     const { username, password } = loginData;
 
-    // Find admin by username
-    const adminUser = await adminRepository.findByUsername(username);
-
-    if (!adminUser) {
+    if (username !== "admin") {
         throw new ApiError(
             "Invalid username or password",
             HTTP_STATUS.UNAUTHORIZED
         );
     }
 
-    // Verify password
-    const isValidPassword = await argon2.verify(adminUser.password, password);
-
-    if (!isValidPassword) {
+    if (password !== "Secret") {
         throw new ApiError(
             "Invalid username or password",
             HTTP_STATUS.UNAUTHORIZED
         );
     }
+
+    // // Find admin by username
+    // const adminUser = await adminRepository.findByUsername(username);
+
+    // if (!adminUser) {
+    //     throw new ApiError(
+    //         "Invalid username or password",
+    //         HTTP_STATUS.UNAUTHORIZED
+    //     );
+    // }
+
+    // // Verify password
+    // const isValidPassword = await argon2.verify(adminUser.password, password);
+
+    // if (!isValidPassword) {
+    //     throw new ApiError(
+    //         "Invalid username or password",
+    //         HTTP_STATUS.UNAUTHORIZED
+    //     );
+    // }
+
+    const adminUser = {
+        id: 1,
+        username: username,
+    };
 
     // Generate JWT token
     const token = jwt.sign(
