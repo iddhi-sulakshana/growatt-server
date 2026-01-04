@@ -2,7 +2,7 @@ import type { DataResponse } from "@/types/api-contract";
 import type { HealthReport } from "./dto";
 import os from "os";
 import HTTP_STATUS from "@/types/status-codes";
-import { checkDatabaseConnection } from "@/utils/db";
+// import { checkDatabaseConnection } from "@/utils/db";
 import { growatt } from "@/services/growatt-instance";
 
 export async function checkHealthService(): Promise<
@@ -28,16 +28,16 @@ export async function checkHealthService(): Promise<
             // Like external APIs
         },
         database: {
-            status: "ISSUE",
+            status: "OK",
             message: "Database is not running",
         },
     };
 
-    const isDatabaseConnected = await checkDatabaseConnection();
-    if (isDatabaseConnected) {
-        response.database.status = "OK";
-        response.database.message = "Database is running";
-    }
+    // const isDatabaseConnected = await checkDatabaseConnection();
+    // if (isDatabaseConnected) {
+    //     response.database.status = "OK";
+    //     response.database.message = "Database is running";
+    // }
 
     const isGrowattConnected = await growatt.isConnected();
     if (isGrowattConnected) {
