@@ -24,6 +24,7 @@ const Analytics = () => {
     const [chartData, setChartData] = useState<DeviceHistoryData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
+    const [itemsPerRequest, setItemsPerRequest] = useState(1);
     const isFetchingRef = useRef(false);
     const shouldStopRef = useRef(false);
 
@@ -39,20 +40,28 @@ const Analytics = () => {
         pOut: false,
         load: false,
         pBat: false,
+        Buck1_NTCTemperature: false,
+        Buck2_NTCTemperature: false,
+        DcDcTemperature: false,
+        InvTemperature: false,
     });
 
     // Color mapping for each field
     const fieldColors: Record<string, string> = {
-        vBat: "#8b5cf6",      // Purple
-        vpv1: "#10b981",      // Green
-        vpv2: "#3b82f6",      // Blue
-        ppv1: "#f59e0b",      // Orange
-        ppv2: "#ef4444",      // Red
-        ipv1: "#06b6d4",      // Cyan
-        ipv2: "#ec4899",      // Pink
-        pOut: "#84cc16",      // Lime
-        load: "#6366f1",      // Indigo
-        pBat: "#f97316",      // Orange-red
+        vBat: "#8b5cf6", // Purple
+        vpv1: "#10b981", // Green
+        vpv2: "#3b82f6", // Blue
+        ppv1: "#f59e0b", // Orange
+        ppv2: "#ef4444", // Red
+        ipv1: "#06b6d4", // Cyan
+        ipv2: "#ec4899", // Pink
+        pOut: "#84cc16", // Lime
+        load: "#6366f1", // Indigo
+        pBat: "#f97316", // Orange-red
+        Buck1_NTCTemperature: "#8b5cf6", // Purple
+        Buck2_NTCTemperature: "#10b981", // Green
+        DcDcTemperature: "#3b82f6", // Blue
+        InvTemperature: "#f59e0b", // Orange
     };
 
     // Field labels
@@ -67,6 +76,10 @@ const Analytics = () => {
         pOut: "Output Power (W)",
         load: "Load Percent (%)",
         pBat: "Battery Power (W)",
+        Buck1_NTCTemperature: "Buck 1 Temperature (°C)",
+        Buck2_NTCTemperature: "Buck 2 Temperature (°C)",
+        DcDcTemperature: "DcDc Temperature (°C)",
+        InvTemperature: "Inv Temperature (°C)",
     };
 
     const toggleField = (field: keyof typeof fieldToggles) => {
@@ -101,22 +114,38 @@ const Analytics = () => {
                 });
 
                 if (response.data) {
-                    // Only take first item to save memory
+                    // Get evenly distributed items from the response
                     const datas = response.data.datas;
-                    const selectedItem = datas.length > 0 ? datas[0] : null;
-                    
+                    const totalLength = datas.length;
+                    let selectedItems: DeviceHistoryData[] = [];
+
+                    if (totalLength <= itemsPerRequest) {
+                        // If total is less than or equal to requested, take all
+                        selectedItems = datas;
+                    } else {
+                        // Calculate step size for even distribution
+                        const step = Math.floor(totalLength / itemsPerRequest);
+                        // Get evenly distributed items
+                        for (let i = 0; i < itemsPerRequest; i++) {
+                            const index = i * step;
+                            if (index < totalLength) {
+                                selectedItems.push(datas[index]);
+                            }
+                        }
+                    }
+
                     // Store pagination info before clearing
                     const hasNext = response.data.haveNext;
                     const nextStart = response.data.start;
-                    
+
                     // Clear the response data from memory
                     response.data.datas = [];
                     response.data = null as any;
-                    
+
                     // Immediately add the selected data to the chart
-                    if (selectedItem) {
+                    if (selectedItems.length > 0) {
                         setChartData((prevData) => {
-                            const newData = [...prevData, selectedItem];
+                            const newData = [...prevData, ...selectedItems];
                             return newData;
                         });
                     }
@@ -138,32 +167,38 @@ const Analytics = () => {
     };
 
     // Format data for chart - create time series from calendar data
-    const formattedChartData = chartData.map((item) => {
-        const { calendar } = item;
-        const date = new Date(
-            calendar.year,
-            calendar.month - 1,
-            calendar.dayOfMonth,
-            calendar.hourOfDay,
-            calendar.minute,
-            calendar.second
-        );
+    const formattedChartData = chartData
+        .map((item) => {
+            const { calendar } = item;
+            const date = new Date(
+                calendar.year,
+                calendar.month - 1,
+                calendar.dayOfMonth,
+                calendar.hourOfDay,
+                calendar.minute,
+                calendar.second
+            );
 
-        return {
-            time: date.toLocaleString(),
-            timestamp: date.getTime(),
-            vBat: item.vBat,
-            vpv1: item.vpv,
-            vpv2: item.vpv2,
-            ppv1: item.ppv,
-            ppv2: item.ppv2,
-            ipv1: item.iChargePV1,
-            ipv2: item.iChargePV2,
-            pOut: item.outPutPower,
-            load: item.loadPercent,
-            pBat: item.pBat,
-        };
-    }).sort((a, b) => a.timestamp - b.timestamp);
+            return {
+                time: date.toLocaleString(),
+                timestamp: date.getTime(),
+                vBat: item.vBat,
+                vpv1: item.vpv,
+                vpv2: item.vpv2,
+                ppv1: item.ppv,
+                ppv2: item.ppv2,
+                ipv1: item.iChargePV1,
+                ipv2: item.iChargePV2,
+                pOut: item.outPutPower,
+                load: item.loadPercent,
+                pBat: item.pBat,
+                Buck1_NTCTemperature: item.Buck1_NTCTemperature,
+                Buck2_NTCTemperature: item.Buck2_NTCTemperature,
+                DcDcTemperature: item.DcDcTemperature,
+                InvTemperature: item.InvTemperature,
+            };
+        })
+        .sort((a, b) => a.timestamp - b.timestamp);
 
     return (
         <main className="bg-gray-100 min-h-screen h-screen w-screen flex items-center justify-center overflow-y-auto relative">
@@ -172,6 +207,30 @@ const Analytics = () => {
                 <div className="max-w-7xl mx-auto h-full flex flex-col gap-6">
                     {/* Date Range Selector */}
                     <div className="bg-white rounded-lg shadow-md p-2 border-4 border-gray-500">
+                        <div className="flex flex-col md:flex-row gap-4 items-end mb-4">
+                            <div className="flex-1 flex gap-2 items-center">
+                                <label className="block text-sm font-medium text-gray-700 text-nowrap">
+                                    Items per Request
+                                </label>
+                                <select
+                                    value={itemsPerRequest}
+                                    onChange={(e) =>
+                                        setItemsPerRequest(
+                                            Number(e.target.value)
+                                        )
+                                    }
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                >
+                                    <option value={1}>1</option>
+                                    <option value={2}>2</option>
+                                    <option value={3}>3</option>
+                                    <option value={4}>4</option>
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="flex flex-col md:flex-row gap-4 items-end">
                             <div className="flex-1 flex gap-2 items-center">
                                 <label className="block text-sm font-medium text-gray-700 text-nowrap">
@@ -180,8 +239,11 @@ const Analytics = () => {
                                 <input
                                     type="date"
                                     value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    onChange={(e) =>
+                                        setStartDate(e.target.value)
+                                    }
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                                 />
                             </div>
                             <div className="flex-1 flex gap-2 items-center">
@@ -192,7 +254,8 @@ const Analytics = () => {
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                                 />
                             </div>
                             <button
@@ -216,7 +279,9 @@ const Analytics = () => {
                     {/* Toggle Controls */}
                     {formattedChartData.length > 0 && (
                         <div className="bg-white rounded-lg shadow-md p-4 border-4 border-gray-500">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3">Toggle Chart Lines</h3>
+                            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                                Toggle Chart Lines
+                            </h3>
                             <div className="flex flex-wrap gap-3">
                                 {Object.keys(fieldToggles).map((field) => (
                                     <label
@@ -225,14 +290,25 @@ const Analytics = () => {
                                     >
                                         <input
                                             type="checkbox"
-                                            checked={fieldToggles[field as keyof typeof fieldToggles]}
-                                            onChange={() => toggleField(field as keyof typeof fieldToggles)}
+                                            checked={
+                                                fieldToggles[
+                                                    field as keyof typeof fieldToggles
+                                                ]
+                                            }
+                                            onChange={() =>
+                                                toggleField(
+                                                    field as keyof typeof fieldToggles
+                                                )
+                                            }
                                             className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                                         />
                                         <div className="flex items-center gap-2">
                                             <div
                                                 className="w-4 h-4 rounded"
-                                                style={{ backgroundColor: fieldColors[field] }}
+                                                style={{
+                                                    backgroundColor:
+                                                        fieldColors[field],
+                                                }}
                                             />
                                             <span className="text-sm text-gray-700">
                                                 {fieldLabels[field]}
@@ -245,11 +321,13 @@ const Analytics = () => {
                     )}
 
                     {/* Chart Area */}
-                    <div className="flex-1 bg-white rounded-lg shadow-md p-6 border-4 border-gray-500">
+                    <div className="flex-1 bg-white rounded-lg shadow-md p-1 border-4 border-gray-500">
                         {isError ? (
                             <div className="flex flex-col items-center justify-center h-64">
                                 <AlertCircle className="w-10 h-10 text-red-500" />
-                                <p className="text-sm font-bold mt-2">Failed to load analytics</p>
+                                <p className="text-sm font-bold mt-2">
+                                    Failed to load analytics
+                                </p>
                                 <button
                                     onClick={handleLoadData}
                                     className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -259,140 +337,218 @@ const Analytics = () => {
                             </div>
                         ) : formattedChartData.length === 0 && !isLoading ? (
                             <div className="flex items-center justify-center h-64">
-                                <p className="text-gray-600">No data available for the selected date range</p>
+                                <p className="text-gray-600">
+                                    No data available for the selected date
+                                    range
+                                </p>
                             </div>
                         ) : (
                             <div className="w-full h-full flex flex-col">
                                 {isLoading && (
                                     <div className="flex items-center gap-2 mb-4 text-green-600">
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        <p className="text-sm font-medium">Loading data... ({chartData.length} points loaded)</p>
+                                        <p className="text-sm font-medium">
+                                            Loading data... ({chartData.length}{" "}
+                                            points loaded)
+                                        </p>
                                     </div>
                                 )}
                                 <div className="w-full flex-1 min-h-[500px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={formattedChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis
-                                            dataKey="time"
-                                            angle={-45}
-                                            textAnchor="end"
-                                            height={100}
-                                            interval="preserveStartEnd"
-                                            tickFormatter={(value) => {
-                                                const date = new Date(value);
-                                                return date.toLocaleTimeString('en-US', { 
-                                                    hour: '2-digit', 
-                                                    minute: '2-digit',
-                                                    hour12: false
-                                                });
-                                            }}                                
-                                        />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Legend />
-                                        {fieldToggles.vBat && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="vBat"
-                                                stroke={fieldColors.vBat}
-                                                strokeWidth={2}
-                                                name={fieldLabels.vBat}
-                                                dot={false}
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                    >
+                                        <LineChart
+                                            data={formattedChartData}
+                                            margin={{
+                                                top: 0,
+                                                right: 0,
+                                                left: -35,
+                                                bottom: 0,
+                                            }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis
+                                                dataKey="time"
+                                                angle={-90}
+                                                textAnchor="end"
+                                                height={100}
+                                                interval="preserveStartEnd"
+                                                tickFormatter={(value) => {
+                                                    const date = new Date(
+                                                        value
+                                                    );
+                                                    return date.toLocaleTimeString(
+                                                        "en-US",
+                                                        {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                            hour12: false,
+                                                        }
+                                                    );
+                                                }}
                                             />
-                                        )}
-                                        {fieldToggles.vpv1 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="vpv1"
-                                                stroke={fieldColors.vpv1}
-                                                strokeWidth={2}
-                                                name={fieldLabels.vpv1}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.vpv2 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="vpv2"
-                                                stroke={fieldColors.vpv2}
-                                                strokeWidth={2}
-                                                name={fieldLabels.vpv2}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.ppv1 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="ppv1"
-                                                stroke={fieldColors.ppv1}
-                                                strokeWidth={2}
-                                                name={fieldLabels.ppv1}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.ppv2 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="ppv2"
-                                                stroke={fieldColors.ppv2}
-                                                strokeWidth={2}
-                                                name={fieldLabels.ppv2}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.ipv1 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="ipv1"
-                                                stroke={fieldColors.ipv1}
-                                                strokeWidth={2}
-                                                name={fieldLabels.ipv1}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.ipv2 && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="ipv2"
-                                                stroke={fieldColors.ipv2}
-                                                strokeWidth={2}
-                                                name={fieldLabels.ipv2}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.pOut && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="pOut"
-                                                stroke={fieldColors.pOut}
-                                                strokeWidth={2}
-                                                name={fieldLabels.pOut}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.load && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="load"
-                                                stroke={fieldColors.load}
-                                                strokeWidth={2}
-                                                name={fieldLabels.load}
-                                                dot={false}
-                                            />
-                                        )}
-                                        {fieldToggles.pBat && (
-                                            <Line
-                                                type="monotone"
-                                                dataKey="pBat"
-                                                stroke={fieldColors.pBat}
-                                                strokeWidth={2}
-                                                name={fieldLabels.pBat}
-                                                dot={false}
-                                            />
-                                        )}
-                                    </LineChart>
-                                </ResponsiveContainer>
+                                            <YAxis angle={-80} />
+                                            <Tooltip />
+                                            <Legend />
+                                            {fieldToggles.vBat && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="vBat"
+                                                    stroke={fieldColors.vBat}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.vBat}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.vpv1 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="vpv1"
+                                                    stroke={fieldColors.vpv1}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.vpv1}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.vpv2 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="vpv2"
+                                                    stroke={fieldColors.vpv2}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.vpv2}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.ppv1 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="ppv1"
+                                                    stroke={fieldColors.ppv1}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.ppv1}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.ppv2 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="ppv2"
+                                                    stroke={fieldColors.ppv2}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.ppv2}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.ipv1 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="ipv1"
+                                                    stroke={fieldColors.ipv1}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.ipv1}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.ipv2 && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="ipv2"
+                                                    stroke={fieldColors.ipv2}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.ipv2}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.pOut && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="pOut"
+                                                    stroke={fieldColors.pOut}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.pOut}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.load && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="load"
+                                                    stroke={fieldColors.load}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.load}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.pBat && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="pBat"
+                                                    stroke={fieldColors.pBat}
+                                                    strokeWidth={2}
+                                                    name={fieldLabels.pBat}
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.Buck1_NTCTemperature && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="Buck1_NTCTemperature"
+                                                    stroke={
+                                                        fieldColors.Buck1_NTCTemperature
+                                                    }
+                                                    strokeWidth={2}
+                                                    name={
+                                                        fieldLabels.Buck1_NTCTemperature
+                                                    }
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.Buck2_NTCTemperature && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="Buck2_NTCTemperature"
+                                                    stroke={
+                                                        fieldColors.Buck2_NTCTemperature
+                                                    }
+                                                    strokeWidth={2}
+                                                    name={
+                                                        fieldLabels.Buck2_NTCTemperature
+                                                    }
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.DcDcTemperature && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="DcDcTemperature"
+                                                    stroke={
+                                                        fieldColors.DcDcTemperature
+                                                    }
+                                                    strokeWidth={2}
+                                                    name={
+                                                        fieldLabels.DcDcTemperature
+                                                    }
+                                                    dot={false}
+                                                />
+                                            )}
+                                            {fieldToggles.InvTemperature && (
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="InvTemperature"
+                                                    stroke={
+                                                        fieldColors.InvTemperature
+                                                    }
+                                                    strokeWidth={2}
+                                                    name={
+                                                        fieldLabels.InvTemperature
+                                                    }
+                                                    dot={false}
+                                                />
+                                            )}
+                                        </LineChart>
+                                    </ResponsiveContainer>
                                 </div>
                             </div>
                         )}
@@ -467,4 +623,3 @@ const Analytics = () => {
 };
 
 export default Analytics;
-
