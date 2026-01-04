@@ -1,6 +1,5 @@
-import { configLogger, ENV, redis } from "./configs";
+import { configLogger, ENV } from "./configs";
 import initializeServer from "./server";
-import { checkDatabaseConnection } from "./utils/db";
 import { growatt } from "./services/growatt-instance";
 
 async function main() {
@@ -8,7 +7,7 @@ async function main() {
     const logger = configLogger();
 
     // Initialize the Redis client
-    redis.createRedisClient();
+    // redis.createRedisClient();
 
     // Initialize Growatt connection
     logger.info("Initializing Growatt connection...");
@@ -28,31 +27,31 @@ async function main() {
     // Initialize Express App
     const app = initializeServer();
 
-    // Wait for the database connection to be established
-    logger.info("Waiting for database connection...");
-    try {
-        await Promise.race([
-            (async () => {
-                // Small delay before first connection attempt
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                const isDatabaseConnected = await checkDatabaseConnection();
-                if (!isDatabaseConnected) {
-                    throw new Error("Failed to connect to the database");
-                }
-                logger.info("Database connection handshake successful ✅");
-            })(),
-            new Promise((_, reject) =>
-                setTimeout(
-                    () => reject(new Error("Database connection timeout")),
-                    10000
-                )
-            ),
-        ]);
-    } catch (error: any) {
-        logger.error("Failed to connect to the database. Exiting... ❌");
-        logger.error(error.message);
-        process.exit(1);
-    }
+    // // Wait for the database connection to be established
+    // logger.info("Waiting for database connection...");
+    // try {
+    //     await Promise.race([
+    //         (async () => {
+    //             // Small delay before first connection attempt
+    //             await new Promise((resolve) => setTimeout(resolve, 1000));
+    //             const isDatabaseConnected = await checkDatabaseConnection();
+    //             if (!isDatabaseConnected) {
+    //                 throw new Error("Failed to connect to the database");
+    //             }
+    //             logger.info("Database connection handshake successful ✅");
+    //         })(),
+    //         new Promise((_, reject) =>
+    //             setTimeout(
+    //                 () => reject(new Error("Database connection timeout")),
+    //                 10000
+    //             )
+    //         ),
+    //     ]);
+    // } catch (error: any) {
+    //     logger.error("Failed to connect to the database. Exiting... ❌");
+    //     logger.error(error.message);
+    //     process.exit(1);
+    // }
 
     // Start the server
     const server = app.listen(ENV.PORT, (error) => {
