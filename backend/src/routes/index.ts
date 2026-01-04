@@ -2,6 +2,7 @@ import type { Express } from "express";
 import healthRouter from "./health/controller";
 import authRouter from "./auth/controller";
 import growattRouter from "./growatt/controller";
+import weatherRouter from "./weather/controller";
 import { authorize } from "@/middlewares/authorize";
 
 export function initializeRoutes(app: Express) {
@@ -16,4 +17,7 @@ export function initializeRoutes(app: Express) {
 
     // Growatt routes
     app.use(`${PREFIX}/growatt`, authorize(), growattRouter);
+
+    // Weather routes
+    app.use(`${PREFIX}/weather`, authorize(), weatherRouter);
 }

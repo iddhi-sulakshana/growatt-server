@@ -54,6 +54,13 @@ const initialNodes: Node[] = [
         data: { icon: "battery", name: "Battery", id: "battery" },
         type: "custom",
     },
+    // Weather - left side of battery
+    {
+        id: "weather",
+        position: { x: 90, y: 300 },
+        data: { icon: "weather", name: "Weather", id: "weather" },
+        type: "custom",
+    },
     // Clock - bottom right, within bounds (x: 420, y: 350)
     {
         id: "clock",
