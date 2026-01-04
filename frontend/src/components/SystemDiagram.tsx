@@ -54,6 +54,13 @@ const initialNodes: Node[] = [
         data: { icon: "battery", name: "Battery", id: "battery" },
         type: "custom",
     },
+    // Clock - bottom right, within bounds (x: 420, y: 350)
+    {
+        id: "clock",
+        position: { x: 360, y: 320 },
+        data: { icon: "clock", name: "Clock", id: "clock" },
+        type: "custom",
+    },
 ];
 const initialEdges: Edge[] = [
     // Solar panels to inverter

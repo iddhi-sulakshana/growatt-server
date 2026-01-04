@@ -4,6 +4,7 @@ import LoadNode from "./CustomNodes/LoadNode";
 import GridNode from "./CustomNodes/GridNode";
 import InverterNode from "./CustomNodes/InverterNode";
 import SolarNode from "./CustomNodes/SolarNode";
+import ClockNode from "./CustomNodes/ClockNode";
 
 function CustomNode({ data }: { data: { id: string } }) {
     if (data.id === "battery") {
@@ -24,6 +25,10 @@ function CustomNode({ data }: { data: { id: string } }) {
 
     if (data.id === "inverter") {
         return <InverterNode />;
+    }
+
+    if (data.id === "clock") {
+        return <ClockNode />;
     }
     return null;
 }
