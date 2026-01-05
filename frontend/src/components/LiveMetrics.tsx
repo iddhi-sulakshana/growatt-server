@@ -1,4 +1,5 @@
 import { getDeviceStatusService } from "@/service/growatt";
+import { animate } from "framer-motion";
 import {
     AlertCircle,
     Battery,
@@ -7,10 +8,9 @@ import {
     Loader2,
     ServerCrash,
     SolarPanel,
-    Zap,
+    UtilityPole,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { animate } from "framer-motion";
 
 type ChangeState = "increased" | "decreased" | null;
 const transitionDuration = 1000;
@@ -386,9 +386,10 @@ const Metrics = () => {
             {/* Grid */}
             <div className="col-span-1 row-span-1 border-4 border-gray-500 rounded-lg flex flex-col items-center justify-center p-2">
                 <div className="flex flex-col items-center justify-center h-2/5 gap-2">
-                    <Zap
+                    <UtilityPole
                         className={`w-full h-full ${
-                            Number(deviceStatus?.data?.gridPower || 0) !== 0 || Number(deviceStatus?.data?.vAcInput || 0) !== 0
+                            Number(deviceStatus?.data?.gridPower || 0) !== 0 ||
+                            Number(deviceStatus?.data?.vAcInput || 0) !== 0
                                 ? "text-red-500"
                                 : "text-gray-500"
                         }`}
@@ -398,7 +399,7 @@ const Metrics = () => {
                         {Number(deviceStatus?.data?.gridPower || 0) !== 0
                             ? "Online"
                             : Number(deviceStatus?.data?.vAcInput || 0) !== 0
-                                ? "Standby"
+                            ? "Standby"
                             : "Offline"}
                         )
                     </p>

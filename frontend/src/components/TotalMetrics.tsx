@@ -1,15 +1,15 @@
 import { getTotalDataService } from "@/service/growatt";
 import {
-    Sun,
     Battery,
+    BatteryFull,
     BatteryLow,
     BatteryMedium,
-    BatteryFull,
-    Power,
+    Sun,
+    UtilityPole,
     Zap,
 } from "lucide-react";
-import { Separator } from "./ui/separator";
 import { useEffect, useState } from "react";
+import { Separator } from "./ui/separator";
 
 const TotalMetrics = () => {
     const { data: totalData } = getTotalDataService();
@@ -126,8 +126,8 @@ const TotalMetrics = () => {
             {/* Imported from Grid */}
             <div className="col-span-1 row-span-1 border-4 border-gray-500 rounded-lg flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
-                    <Zap
-                        className="w-1/2 h-1/2 text-red-500 animate-bounce transition-all"
+                    <UtilityPole
+                        className="w-1/2 h-1/2 text-red-500 animate-pulse transition-all"
                         // style={{ animationDuration: "2s" }}
                     />
                     <p className="md:text-md text-xs font-extrabold font-mono">
@@ -159,7 +159,7 @@ const TotalMetrics = () => {
             {/* Load Consumption */}
             <div className="col-span-1 row-span-1 border-4 border-gray-500 rounded-lg flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
-                    <Power
+                    <Zap
                         className="w-1/2 h-1/2 text-orange-500 animate-pulse transition-all"
                         // style={{ animationDuration: "3s" }}
                     />

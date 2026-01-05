@@ -1,14 +1,14 @@
-import { Zap } from "lucide-react";
-import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
+import { UtilityPole } from "lucide-react";
 import FrequencyWave from "../FrequencyWave";
+import LiveGrid from "../HoverCards/LiveGrid";
 import {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
 } from "../ui/hover-card";
-import LiveGrid from "../HoverCards/LiveGrid";
+import AnimatedNumber from "./AnimatedNumber";
 
 const GridNode = () => {
     const { data } = getDeviceStatusService();
@@ -30,7 +30,7 @@ const GridNode = () => {
                                 color="#ef4444"
                             />
                         ) : (
-                            <Zap className="w-13 h-13 text-gray-500" />
+                            <UtilityPole className="w-13 h-13 text-gray-500" />
                         )}
                     </div>
 

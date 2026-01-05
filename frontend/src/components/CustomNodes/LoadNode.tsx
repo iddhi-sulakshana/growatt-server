@@ -1,14 +1,14 @@
-import { Zap } from "lucide-react";
-import AnimatedNumber from "./AnimatedNumber";
 import { getDeviceStatusService } from "@/service/growatt";
 import { Handle, Position } from "@xyflow/react";
+import { UtilityPole } from "lucide-react";
 import ReactSpeedometer from "react-d3-speedometer";
+import LiveLoad from "../HoverCards/LiveLoad";
 import {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
 } from "../ui/hover-card";
-import LiveLoad from "../HoverCards/LiveLoad";
+import AnimatedNumber from "./AnimatedNumber";
 const LoadNode = () => {
     const { data } = getDeviceStatusService();
     const loadPower = Number(data?.data?.loadPower ?? 0);
@@ -38,7 +38,7 @@ const LoadNode = () => {
                                 valueTextFontSize="0px"
                             />
                         ) : (
-                            <Zap className="w-13 h-13 text-gray-500" />
+                            <UtilityPole className="w-13 h-13 text-gray-500" />
                         )}
                     </div>
 
