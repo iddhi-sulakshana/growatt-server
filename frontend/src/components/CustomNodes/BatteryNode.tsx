@@ -15,8 +15,10 @@ import {
     HoverCardTrigger,
 } from "../ui/hover-card";
 import LiveBattery from "../HoverCards/LiveBattery";
+import { useBatteryModalStore } from "@/lib/BatteryModalStore";
 
 const BatteryNode = () => {
+    const openModal = useBatteryModalStore((state) => state.openModal);
     const { data } = getDeviceStatusService();
     const batteryPower = Math.abs(Number(data?.data?.batPower ?? 0));
 
@@ -75,70 +77,78 @@ const BatteryNode = () => {
     const isWarning = batteryVoltage < BAT_WARNING;
 
     return (
-        <HoverCard>
-            <HoverCardTrigger>
-                <div className="flex flex-col items-center">
-                    {/* Icon */}
-                    <div className="flex flex-col w-16 h-16 justify-center items-center">
-                        {isCharging ? (
-                            <ChargingIcon
-                                className={`w-13 h-13 text-blue-500`}
-                            />
-                        ) : (
-                            <BatteryIcon
-                                className={`w-13 h-13 ${batteryColor} ${
-                                    isWarning ? "animate-pulse" : ""
-                                }`}
-                            />
-                        )}
-                        <p className={`text-xs font-sans font-semibold`}>
-                            <AnimatedNumber
-                                value={batteryVoltage}
-                                decimals={2}
-                                suffix="V"
-                            />
-                        </p>
-                    </div>
+        <>
+            <HoverCard>
+                <HoverCardTrigger>
+                    <div className="flex flex-col items-center">
+                        {/* Icon */}
+                        <div
+                            className="flex flex-col w-16 h-16 justify-center items-center cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openModal();
+                        }}
+                        >
+                            {isCharging ? (
+                                <ChargingIcon
+                                    className={`w-13 h-13 text-blue-500`}
+                                />
+                            ) : (
+                                <BatteryIcon
+                                    className={`w-13 h-13 ${batteryColor} ${
+                                        isWarning ? "animate-pulse" : ""
+                                    }`}
+                                />
+                            )}
+                            <p className={`text-xs font-sans font-semibold`}>
+                                <AnimatedNumber
+                                    value={batteryVoltage}
+                                    decimals={2}
+                                    suffix="V"
+                                />
+                            </p>
+                        </div>
 
-                    {/* Value */}
-                    <div className="text-sm font-semibold text-center whitespace-nowrap">
-                        <p className={`text-lg font-sans font-bold`}>
-                            <AnimatedNumber
-                                value={batteryPower}
-                                decimals={0}
-                                suffix="W"
-                            />
-                        </p>
-                        <p className="text-red-500 text-xs italic animate-pulse">
-                            {isWarning && "Critical"}
-                        </p>
-                    </div>
+                        {/* Value */}
+                        <div className="text-sm font-semibold text-center whitespace-nowrap">
+                            <p className={`text-lg font-sans font-bold`}>
+                                <AnimatedNumber
+                                    value={batteryPower}
+                                    decimals={0}
+                                    suffix="W"
+                                />
+                            </p>
+                            <p className="text-red-500 text-xs italic animate-pulse">
+                                {isWarning && "Critical"}
+                            </p>
+                        </div>
 
-                    {/* Handles */}
-                    {/* Input Handle */}
-                    <Handle
-                        type="target"
-                        position={Position.Top}
-                        id="top"
-                        className={
-                            batteryPower > 0 ? "bg-blue-500!" : "bg-gray-500!"
-                        }
-                    />
-                    {/* Output Handle */}
-                    <Handle
-                        type="source"
-                        position={Position.Top}
-                        id="top-source"
-                        className={
-                            batteryPower > 0 ? "bg-blue-500!" : "bg-gray-500!"
-                        }
-                    />
-                </div>
-            </HoverCardTrigger>
-            <HoverCardContent>
-                <LiveBattery />
-            </HoverCardContent>
-        </HoverCard>
+                        {/* Handles */}
+                        {/* Input Handle */}
+                        <Handle
+                            type="target"
+                            position={Position.Top}
+                            id="top"
+                            className={
+                                batteryPower > 0 ? "bg-blue-500!" : "bg-gray-500!"
+                            }
+                        />
+                        {/* Output Handle */}
+                        <Handle
+                            type="source"
+                            position={Position.Top}
+                            id="top-source"
+                            className={
+                                batteryPower > 0 ? "bg-blue-500!" : "bg-gray-500!"
+                            }
+                        />
+                    </div>
+                </HoverCardTrigger>
+                <HoverCardContent>
+                    <LiveBattery />
+                </HoverCardContent>
+            </HoverCard>
+        </>
     );
 };
 

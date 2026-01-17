@@ -1032,3 +1032,182 @@ paths:
                     type: number
                     example: 500
 
+  /growatt/inverter-settings/types:
+    get:
+      summary: Get available inverter setting types
+      tags:
+        - Growatt
+      description: Returns a list of all available inverter setting types, storage SPF5000 settings, and actions
+      responses:
+        '200':
+          description: Available setting types retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Available setting types retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      inverterSettings:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - maxChargeCurrent
+                      storageSPF5000Settings:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - storage_spf5000_max_charge_current
+                      actions:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - storageSPF5000Set
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve setting types
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/inverter-settings/max-charge-current:
+    get:
+      summary: Get max charge current setting
+      tags:
+        - Growatt
+      description: Retrieves the current max charge current setting for storage devices
+      responses:
+        '200':
+          description: Max charge current retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Max charge current retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                        example: 5
+                        description: Max charge current value (0-100)
+        '400':
+          description: Bad request (unsupported device type)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Getting max charge current is not supported for device type: mix"
+                  status:
+                    type: number
+                    example: 400
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to get max charge current
+                  status:
+                    type: number
+                    example: 500
+
+    post:
+      summary: Set max charge current
+      tags:
+        - Growatt
+      description: Sets the max charge current for storage devices (0-100)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+                  description: Max charge current value (0-100)
+                  example: 5
+      responses:
+        '200':
+          description: Max charge current set successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Max charge current set successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: Setting applied
+        '400':
+          description: Bad request (invalid value or unsupported device type)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Setting max charge current is not supported for device type: mix"
+                  status:
+                    type: number
+                    example: 400
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to set max charge current
+                  status:
+                    type: number
+                    example: 500
+

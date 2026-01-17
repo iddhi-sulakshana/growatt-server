@@ -37,3 +37,24 @@ export const plantFaultLogRequestSchema = z.object({
 });
 
 export type PlantFaultLogRequest = z.infer<typeof plantFaultLogRequestSchema>;
+
+export const setMaxChargeCurrentRequestSchema = z.object({
+    value: z.coerce
+        .number()
+        .int("Value must be an integer")
+        .min(0, "Value must be greater than or equal to 0")
+        .max(100, "Value must be less than or equal to 100"),
+});
+
+export type SetMaxChargeCurrentRequest = z.infer<
+    typeof setMaxChargeCurrentRequestSchema
+>;
+
+export type SetMaxChargeCurrentResponse = {
+    success: boolean;
+    message: string;
+};
+
+export type GetMaxChargeCurrentResponse = {
+    value: number;
+};

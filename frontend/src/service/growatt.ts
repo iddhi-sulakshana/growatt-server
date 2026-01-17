@@ -1,4 +1,12 @@
-import { getDeviceStatusApi, getTotalDataApi, getHistoryDataApi } from "@/api/growatt";
+import {
+    getDeviceStatusApi,
+    getTotalDataApi,
+    getHistoryDataApi,
+    getMaxChargeCurrentApi,
+    setMaxChargeCurrentApi,
+} from "@/api/growatt";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceHistoryData } from "@/types/growatt";
 
@@ -52,5 +60,32 @@ export const getHistoryDataService = (
         queryKey: ["history-data", params.startDate, params.endDate],
         queryFn: () => fetchAllHistoryData(params),
         enabled: enabled && !!params.startDate && !!params.endDate,
+    });
+};
+
+export const getMaxChargeCurrentService = () => {
+    return useQuery({
+        queryKey: ["max-charge-current"],
+        queryFn: getMaxChargeCurrentApi,
+        // Refetch every 30 seconds
+        refetchInterval: 30000,
+    });
+};
+
+export const useSetMaxChargeCurrent = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: setMaxChargeCurrentApi,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["max-charge-current"] });
+            toast.success("Max charge current set successfully");
+        },
+        onError: (error: any) => {
+            toast.error(
+                error?.response?.data?.message ||
+                    "Failed to set max charge current"
+            );
+        },
     });
 };

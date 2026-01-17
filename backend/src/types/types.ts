@@ -426,3 +426,38 @@ export type DeviceHistoryData = {
     manualStartEn: number;
     sciLossChkEn: number;
 };
+
+export type DataLoggerResponse = {
+    success?: boolean;
+    msg?: string | number;
+};
+
+export type InverterCommunicationResponse = {
+    [key: string]: {
+        name: string;
+        param: Record<string, any>;
+        isSubread?: string;
+        subRead?: string[];
+    };
+};
+
+export type InverterSettingResponse = {
+    success?: boolean;
+    msg?: string;
+    param1?: number | boolean | string;
+    param2?: number | boolean | string;
+    [key: string]: any;
+};
+
+export const LOGGERREGISTER = {
+    INTERVAL: 4,
+    SERVERIP: 17,
+    SERVERPORT: 18,
+} as const;
+
+export const LOGGERFUNCTION = {
+    REGISTER: 0,
+    SERVERIP: 1,
+    SERVERNAME: 2,
+    SERVERPORT: 3,
+} as const;

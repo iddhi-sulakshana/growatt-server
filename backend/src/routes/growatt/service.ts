@@ -1,10 +1,13 @@
 import { ApiError, type DataResponse } from "@/types/api-contract";
 import type {
+    GetMaxChargeCurrentResponse,
     GrowattDeviceStatusResponse,
     GrowattReloginResponse,
     GrowattSubscriptionStatusResponse,
     HistoryDataRequest,
     PlantFaultLogRequest,
+    SetMaxChargeCurrentRequest,
+    SetMaxChargeCurrentResponse,
 } from "./dto";
 import HTTP_STATUS from "@/types/status-codes";
 import { growatt } from "@/services/growatt-instance";
@@ -15,6 +18,7 @@ import type {
     FaultLog,
     Weather,
 } from "@/types/types";
+import { SETTING_ACTIONS, STORAGE_SPF5000_SETTINGS } from "./inverter-settings";
 
 export async function getDeviceStatusDataService(): Promise<
     DataResponse<GrowattDeviceStatusResponse>
@@ -267,6 +271,128 @@ export async function getPlantFaultLogService(
         winston.error("Growatt: Get plant fault log failed", error);
         throw new ApiError(
             error.message || "Failed to retrieve plant fault log",
+            HTTP_STATUS.INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+export async function setMaxChargeCurrentService(
+    payload: SetMaxChargeCurrentRequest
+): Promise<DataResponse<SetMaxChargeCurrentResponse>> {
+    try {
+        const device = growatt.getDevice();
+
+        if (!device) {
+            throw new ApiError(
+                "Growatt: Device not available",
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        const [deviceType] = device;
+
+        // For storage devices, use direct tcpSet.do call
+        if (deviceType === "storage") {
+            const serialNum = growatt.getSerialNoOfDevice(device);
+            const result = await growatt.setStorageSetting(
+                SETTING_ACTIONS.STORAGE_SPF5000_SET,
+                serialNum,
+                STORAGE_SPF5000_SETTINGS.MAX_CHARGE_CURRENT,
+                {
+                    param1: payload.value.toString(),
+                    param2: "",
+                    param3: "",
+                    param4: "",
+                }
+            );
+
+            if (!result || result.success !== true) {
+                throw new ApiError(
+                    result?.msg?.toString() ||
+                        "Failed to set max charge current",
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            return {
+                message: "Max charge current set successfully",
+                status: HTTP_STATUS.OK,
+                data: {
+                    success: true,
+                    message: result.msg?.toString() || "Setting applied",
+                },
+            };
+        } else {
+            throw new ApiError(
+                `Setting max charge current is not supported for device type: ${deviceType}`,
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+    } catch (error: any) {
+        winston.error("Growatt: Set max charge current failed", error);
+        throw new ApiError(
+            error.message || "Failed to set max charge current",
+            HTTP_STATUS.INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+export async function getMaxChargeCurrentService(): Promise<
+    DataResponse<GetMaxChargeCurrentResponse>
+> {
+    try {
+        const device = growatt.getDevice();
+
+        if (!device) {
+            throw new ApiError(
+                "Growatt: Device not available",
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        const [deviceType] = device;
+
+        // For storage devices, use direct tcpSet.do call
+        if (deviceType === "storage") {
+            const serialNum = growatt.getSerialNoOfDevice(device);
+            const result = await growatt.getStorageSetting(
+                STORAGE_SPF5000_SETTINGS.MAX_CHARGE_CURRENT,
+                serialNum
+            );
+
+            if (!result || result.success !== true) {
+                throw new ApiError(
+                    result?.msg?.toString() ||
+                        "Failed to get max charge current",
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            // Parse the value from the response
+            // The response msg typically contains the value
+            const value = result.msg
+                ? typeof result.msg === "number"
+                    ? result.msg
+                    : parseInt(result.msg.toString(), 10) || 0
+                : 0;
+
+            return {
+                message: "Max charge current retrieved successfully",
+                status: HTTP_STATUS.OK,
+                data: {
+                    value,
+                },
+            };
+        } else {
+            throw new ApiError(
+                `Getting max charge current is not supported for device type: ${deviceType}`,
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+    } catch (error: any) {
+        winston.error("Growatt: Get max charge current failed", error);
+        throw new ApiError(
+            error.message || "Failed to get max charge current",
             HTTP_STATUS.INTERNAL_SERVER_ERROR
         );
     }

@@ -2,18 +2,24 @@ import Axios, { type AxiosInstance } from "axios";
 import ENV from "../configs/ENV";
 import MD5 from "md5";
 import type {
+    DataLoggerResponse,
     Device,
     DeviceHistoryDataList,
     Devices,
     DeviceStatusData,
     DeviceTotalData,
     FaultLog,
+    InverterCommunicationResponse,
+    InverterSettingResponse,
     Plant,
     PlantDetails,
     Weather,
 } from "../types/types";
+import { LOGGERFUNCTION } from "../types/types";
 import GROWATTTYPE from "../types/growatt";
 import winston from "winston";
+import PARSEIN from "../utils/parsein";
+import PARSERET from "../utils/parseret";
 
 type QueueItem<T> = {
     resolve: (value: T | PromiseLike<T>) => void;
@@ -721,12 +727,633 @@ export default class Growatt {
         this.cookie = "";
     }
 
-    private getSerialNoOfDevice(device: Device): string {
+    public getSerialNoOfDevice(device: Device): string {
         const [growattType, serialNo, serialNo2, _] = device;
         let serialNr = serialNo;
         if (GROWATTTYPE[growattType].atIndex) {
             serialNr += `@${serialNo2}`;
         }
         return serialNr;
+    }
+
+    // DataLogger Methods
+
+    public async getDataLoggerRegister(
+        dataLogSn: string,
+        addr: number
+    ): Promise<DataLoggerResponse | null> {
+        return this.enqueueRequest(() =>
+            this._getDataLoggerRegister(dataLogSn, addr)
+        );
+    }
+
+    private async _getDataLoggerRegister(
+        dataLogSn: string,
+        addr: number
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const param = {
+                action: "readDatalogParam",
+                dataLogSn,
+                paramType: "set_any_reg",
+                addr: addr.toString(),
+            };
+            return await this._comDataLogger(param);
+        } catch (error) {
+            winston.error("Growatt: Get datalogger register failed: " + error);
+            return null;
+        }
+    }
+
+    public async setDataLoggerRegister(
+        dataLogSn: string,
+        addr: number,
+        value: string
+    ): Promise<DataLoggerResponse | null> {
+        return this.enqueueRequest(() =>
+            this._setDataLoggerRegister(dataLogSn, addr, value)
+        );
+    }
+
+    private async _setDataLoggerRegister(
+        dataLogSn: string,
+        addr: number,
+        value: string
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const param = {
+                action: "setDatalogParam",
+                dataLogSn,
+                paramType: LOGGERFUNCTION.REGISTER.toString(),
+                param_1: addr.toString(),
+                param_2: value,
+            };
+            return await this._comDataLogger(param);
+        } catch (error) {
+            winston.error("Growatt: Set datalogger register failed: " + error);
+            return null;
+        }
+    }
+
+    public async setDataLoggerParam(
+        dataLogSn: string,
+        paramType: number,
+        value: string
+    ): Promise<DataLoggerResponse | null> {
+        return this.enqueueRequest(() =>
+            this._setDataLoggerParam(dataLogSn, paramType, value)
+        );
+    }
+
+    private async _setDataLoggerParam(
+        dataLogSn: string,
+        paramType: number,
+        value: string
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const param = {
+                action: "setDatalogParam",
+                dataLogSn,
+                paramType: paramType.toString(),
+                param_1: value,
+                param_2: "",
+            };
+            return await this._comDataLogger(param);
+        } catch (error) {
+            winston.error("Growatt: Set datalogger param failed: " + error);
+            return null;
+        }
+    }
+
+    public async setDataLoggerRestart(
+        dataLogSn: string
+    ): Promise<DataLoggerResponse | null> {
+        return this.enqueueRequest(() => this._setDataLoggerRestart(dataLogSn));
+    }
+
+    private async _setDataLoggerRestart(
+        dataLogSn: string
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const param = {
+                action: "restartDatalog",
+                dataLogSn,
+            };
+            return await this._comDataLogger(param);
+        } catch (error) {
+            winston.error("Growatt: Set datalogger restart failed: " + error);
+            return null;
+        }
+    }
+
+    public async checkDataLoggerFirmware(
+        type: number,
+        version: string
+    ): Promise<DataLoggerResponse | null> {
+        return this.enqueueRequest(() =>
+            this._checkDataLoggerFirmware(type, version)
+        );
+    }
+
+    private async _checkDataLoggerFirmware(
+        type: number,
+        version: string
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const param = {
+                action: "checkFirmwareVersion",
+                deviceTypeIndicate: type.toString(),
+                firmwareVersion: version,
+            };
+            return await this._comDataLogger(param);
+        } catch (error) {
+            winston.error(
+                "Growatt: Check datalogger firmware failed: " + error
+            );
+            return null;
+        }
+    }
+
+    private async _comDataLogger(
+        param: Record<string, string>
+    ): Promise<DataLoggerResponse | null> {
+        try {
+            const params = new URLSearchParams(param);
+            const response = await this.axios.post(
+                "/ftp.do",
+                params.toString(),
+                {
+                    headers: this.makeCallHeaders(),
+                }
+            );
+            if (response.status !== 200 || !response.data) {
+                winston.error(
+                    "Growatt: DataLogger communication failed: Unknown error"
+                );
+                return null;
+            }
+            if (typeof response.data.success !== "undefined") {
+                return response.data as DataLoggerResponse;
+            }
+            winston.error(
+                "Growatt: DataLogger communication failed: Unexpected response"
+            );
+            return null;
+        } catch (error) {
+            this.connected = false;
+            winston.error("Growatt: DataLogger communication failed: " + error);
+            return null;
+        }
+    }
+
+    // Inverter Methods
+
+    public getInverterCommunication(
+        type: keyof typeof GROWATTTYPE
+    ): InverterCommunicationResponse {
+        const ret: InverterCommunicationResponse = {};
+        const gt = GROWATTTYPE[type];
+        if (typeof gt.comInverter === "object") {
+            Object.keys(gt.comInverter).forEach((key) => {
+                ret[key] = {
+                    name: gt.comInverter![key].name,
+                    param: {},
+                };
+                Object.assign(ret[key].param, gt.comInverter![key].param);
+                if (gt.comInverter![key].isSubread) {
+                    ret[key].isSubread = gt.comInverter![key].isSubread;
+                }
+                if (gt.comInverter![key].subRead) {
+                    ret[key].subRead = [];
+                    Object.assign(
+                        ret[key].subRead,
+                        gt.comInverter![key].subRead
+                    );
+                }
+            });
+        }
+        return ret;
+    }
+
+    public async getInverterSetting(
+        type: keyof typeof GROWATTTYPE,
+        func: string,
+        serialNum: string
+    ): Promise<InverterSettingResponse | null> {
+        return this.enqueueRequest(() =>
+            this._getInverterSetting(type, func, serialNum)
+        );
+    }
+
+    private async _getInverterSetting(
+        type: keyof typeof GROWATTTYPE,
+        func: string,
+        serialNum: string
+    ): Promise<InverterSettingResponse | null> {
+        const param = {
+            url: {
+                action: "",
+                paramId: "",
+                serialNum,
+                startAddr: "-1",
+                endAddr: "-1",
+            },
+            action: "readParam",
+            base: "comInverter",
+            func,
+        };
+        return await this._comInverter(type, param, PARSERET.parseRetDate);
+    }
+
+    public async setInverterSetting(
+        type: keyof typeof GROWATTTYPE,
+        func: string,
+        serialNum: string,
+        val: Record<string, any>
+    ): Promise<InverterSettingResponse | null> {
+        return this.enqueueRequest(() =>
+            this._setInverterSetting(type, func, serialNum, val)
+        );
+    }
+
+    private async _setInverterSetting(
+        type: keyof typeof GROWATTTYPE,
+        func: string,
+        serialNum: string,
+        val: Record<string, any>
+    ): Promise<InverterSettingResponse | null> {
+        const param = {
+            url: {
+                action: "",
+                serialNum,
+                type: "",
+            },
+            val,
+            action: "writeParam",
+            base: "comInverter",
+            func,
+        };
+        return await this._comInverter(type, param, PARSERET.parseRetDate);
+    }
+
+    /**
+     * Read storage device setting
+     * Used for reading storage settings not covered by standard inverter settings
+     */
+    public async getStorageSetting(
+        paramId: string,
+        serialNum: string,
+        startAddr: number = -1,
+        endAddr: number = -1
+    ): Promise<InverterSettingResponse | null> {
+        return this.enqueueRequest(() =>
+            this._getStorageSetting(paramId, serialNum, startAddr, endAddr)
+        );
+    }
+
+    private async _getStorageSetting(
+        paramId: string,
+        serialNum: string,
+        startAddr: number = -1,
+        endAddr: number = -1
+    ): Promise<InverterSettingResponse | null> {
+        try {
+            if (!this.connected) {
+                winston.error(
+                    "Growatt: Get storage setting failed: Not connected"
+                );
+                return null;
+            }
+
+            const param: Record<string, string> = {
+                action: "readStorageParam",
+                paramId,
+                serialNum,
+                startAddr: startAddr.toString(),
+                endAddr: endAddr.toString(),
+            };
+
+            const urlParams = new URLSearchParams(param);
+            const response = await this.axios.post(
+                "/tcpSet.do",
+                urlParams.toString(),
+                {
+                    headers: this.makeCallHeaders(),
+                }
+            );
+
+            if (response.status !== 200 || !response.data) {
+                winston.error(
+                    "Growatt: Get storage setting failed: Unknown error"
+                );
+                return null;
+            }
+
+            if (typeof response.data.success !== "undefined") {
+                return response.data as InverterSettingResponse;
+            }
+
+            winston.error(
+                "Growatt: Get storage setting failed: Unexpected response format"
+            );
+            return null;
+        } catch (error) {
+            this.connected = false;
+            winston.error("Growatt: Get storage setting failed: " + error);
+            return null;
+        }
+    }
+
+    /**
+     * Direct call to /tcpSet.do for storage device settings
+     * Used for settings not covered by standard inverter settings
+     */
+    public async setStorageSetting(
+        action: string,
+        serialNum: string,
+        type: string,
+        params: Record<string, string> = {}
+    ): Promise<InverterSettingResponse | null> {
+        return this.enqueueRequest(() =>
+            this._setStorageSetting(action, serialNum, type, params)
+        );
+    }
+
+    private async _setStorageSetting(
+        action: string,
+        serialNum: string,
+        type: string,
+        params: Record<string, string> = {}
+    ): Promise<InverterSettingResponse | null> {
+        try {
+            if (!this.connected) {
+                winston.error(
+                    "Growatt: Set storage setting failed: Not connected"
+                );
+                return null;
+            }
+
+            const param: Record<string, string> = {
+                action,
+                serialNum,
+                type,
+                ...params,
+            };
+
+            const urlParams = new URLSearchParams(param);
+            const response = await this.axios.post(
+                "/tcpSet.do",
+                urlParams.toString(),
+                {
+                    headers: this.makeCallHeaders(),
+                }
+            );
+
+            if (response.status !== 200 || !response.data) {
+                winston.error(
+                    "Growatt: Set storage setting failed: Unknown error"
+                );
+                return null;
+            }
+
+            if (typeof response.data.success !== "undefined") {
+                return response.data as InverterSettingResponse;
+            }
+
+            winston.error(
+                "Growatt: Set storage setting failed: Unexpected response format"
+            );
+            return null;
+        } catch (error) {
+            this.connected = false;
+            winston.error("Growatt: Set storage setting failed: " + error);
+            return null;
+        }
+    }
+
+    private async _comInverter(
+        type: keyof typeof GROWATTTYPE,
+        paramorgi: {
+            url: Record<string, string>;
+            action?: string;
+            base?: string;
+            func?: string;
+            val?: Record<string, any>;
+        },
+        parseRet: (val: any, resolve: (val: any) => void) => void
+    ): Promise<InverterSettingResponse | null> {
+        return new Promise(async (resolve, reject) => {
+            let checkRet:
+                | ((val: any, resolve: (val: any) => void) => void)
+                | null = null;
+            const param: Record<string, string> = { ...paramorgi.url };
+            const gt = GROWATTTYPE[type];
+            let OK = true;
+
+            try {
+                if (typeof paramorgi.action === "string") {
+                    if (
+                        typeof gt === "object" &&
+                        typeof (gt as any)[paramorgi.action] === "string"
+                    ) {
+                        param.action = (gt as any)[paramorgi.action];
+                    } else {
+                        throw new Error(
+                            `The action ${paramorgi.action} is unknown for invertertype ${type}`
+                        );
+                    }
+                }
+                if (
+                    typeof paramorgi.base === "string" &&
+                    typeof gt[paramorgi.base as keyof typeof gt] === "object" &&
+                    gt.comInverter &&
+                    paramorgi.func &&
+                    typeof gt.comInverter[paramorgi.func] === "object"
+                ) {
+                    const b = gt.comInverter[paramorgi.func];
+                    if (
+                        typeof param.paramId !== "undefined" &&
+                        typeof b.paramId === "string"
+                    ) {
+                        param.paramId = b.paramId;
+                        checkRet = b.parseRet;
+                    }
+                    if (
+                        typeof param.type !== "undefined" &&
+                        typeof b.type === "string"
+                    ) {
+                        param.type = b.type;
+                        if (
+                            typeof paramorgi.val === "object" &&
+                            typeof b.param === "object"
+                        ) {
+                            const p = b.param;
+                            Object.keys(p).forEach((name) => {
+                                if (
+                                    typeof paramorgi.val?.[name] !== "undefined"
+                                ) {
+                                    let ok = true;
+                                    const parseType = p[name].type;
+                                    let parsedValue: any;
+                                    let parsedOk: boolean;
+
+                                    // Type mapping for PARSEIN methods
+                                    switch (parseType) {
+                                        case "INUM_0_100":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.INUM_0_100(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "INUM_0_24":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.INUM_0_24(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "INUM_0_60":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.INUM_0_60(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "INUM_0_1":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.INUM_0_1(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "INUM_0_2":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.INUM_0_2(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "BOOL":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.BOOL(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "STIME_H_MIN":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.STIME_H_MIN(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        case "DATETIME":
+                                            [parsedValue, parsedOk] =
+                                                PARSEIN.DATETIME(
+                                                    paramorgi.val![name]
+                                                );
+                                            break;
+                                        default:
+                                            parsedValue = paramorgi.val![name];
+                                            parsedOk = true;
+                                    }
+
+                                    ok = parsedOk;
+                                    if (!ok) {
+                                        throw new Error(
+                                            `The value ${p[name].name} is incorrect for ${p[name].type} for function ${paramorgi.func} on invertertype ${type}`
+                                        );
+                                    }
+                                    param[name] = parsedValue.toString();
+                                } else {
+                                    throw new Error(
+                                        `The value ${p[name].name} is missing for send function ${paramorgi.func} on invertertype ${type}`
+                                    );
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    throw new Error(
+                        `The function ${paramorgi.func} is unknown for invertertype ${type}`
+                    );
+                }
+            } catch (e) {
+                OK = false;
+                reject(e);
+                return;
+            }
+
+            if (!OK) {
+                return;
+            }
+
+            try {
+                if (!this.connected) {
+                    reject(new Error("The server is not connected"));
+                    return;
+                }
+
+                const params = new URLSearchParams(param);
+                this.axios
+                    .post("/tcpSet.do", params.toString(), {
+                        headers: this.makeCallHeaders(),
+                    })
+                    .then((res) => {
+                        if (
+                            res.data &&
+                            typeof res.data.success !== "undefined"
+                        ) {
+                            if (
+                                typeof res.data.msg !== "undefined" &&
+                                res.data.msg === ""
+                            ) {
+                                // Recursive call for sub-reads
+                                this._comInverter(
+                                    type,
+                                    paramorgi,
+                                    checkRet || parseRet
+                                )
+                                    .then((r) => {
+                                        resolve(r);
+                                    })
+                                    .catch((e) => {
+                                        reject(e);
+                                    });
+                            } else if (
+                                typeof checkRet !== "undefined" &&
+                                checkRet !== null
+                            ) {
+                                checkRet(res.data, resolve);
+                            } else {
+                                resolve(res.data);
+                            }
+                        } else if (res.data) {
+                            winston.error(
+                                "Growatt: Inverter communication reject: " +
+                                    JSON.stringify(res.data)
+                            );
+                            reject(
+                                new Error(
+                                    "Inverter communication failed: " +
+                                        JSON.stringify(res.data)
+                                )
+                            );
+                        } else {
+                            winston.error(
+                                "Growatt: Inverter communication reject: Unexpected response"
+                            );
+                            reject(
+                                new Error(
+                                    "The server sent an unexpected response, a fatal error has occurred"
+                                )
+                            );
+                        }
+                    })
+                    .catch((e) => {
+                        winston.error(
+                            "Growatt: Inverter communication error: " + e
+                        );
+                        this.connected = false;
+                        reject(e);
+                    });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 }

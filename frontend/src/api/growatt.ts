@@ -33,3 +33,21 @@ export const getHistoryDataApi = async (payload: HistoryDataRequest) => {
 
     return response.data;
 };
+
+export const getMaxChargeCurrentApi = async () => {
+    const response = await ApiClient.get<DataResponse<{ value: number }>>(
+        "/growatt/inverter-settings/max-charge-current"
+    );
+
+    return response.data;
+};
+
+export const setMaxChargeCurrentApi = async (value: number) => {
+    const response = await ApiClient.post<
+        DataResponse<{ success: boolean; message: string }>
+    >("/growatt/inverter-settings/max-charge-current", {
+        value,
+    });
+
+    return response.data;
+};
