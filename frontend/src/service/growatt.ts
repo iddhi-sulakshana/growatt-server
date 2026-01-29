@@ -28,7 +28,10 @@ export const getTotalDataService = () => {
     });
 };
 
-const fetchAllHistoryData = async (params: { startDate: string; endDate: string }): Promise<DeviceHistoryData[]> => {
+const fetchAllHistoryData = async (params: {
+    startDate: string;
+    endDate: string;
+}): Promise<DeviceHistoryData[]> => {
     const allData: DeviceHistoryData[] = [];
     let currentStart = 0;
     let hasMore = true;
@@ -54,7 +57,7 @@ const fetchAllHistoryData = async (params: { startDate: string; endDate: string 
 
 export const getHistoryDataService = (
     params: { startDate: string; endDate: string },
-    enabled: boolean
+    enabled: boolean,
 ) => {
     return useQuery({
         queryKey: ["history-data", params.startDate, params.endDate],
@@ -67,8 +70,14 @@ export const getMaxChargeCurrentService = () => {
     return useQuery({
         queryKey: ["max-charge-current"],
         queryFn: getMaxChargeCurrentApi,
-        // Refetch every 30 seconds
-        refetchInterval: 30000,
+        // Dont refetch unless manually triggered
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        refetchIntervalInBackground: false,
+        refetchInterval: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
     });
 };
 
@@ -84,7 +93,7 @@ export const useSetMaxChargeCurrent = () => {
         onError: (error: any) => {
             toast.error(
                 error?.response?.data?.message ||
-                    "Failed to set max charge current"
+                    "Failed to set max charge current",
             );
         },
     });
