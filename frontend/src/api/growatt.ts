@@ -4,6 +4,7 @@ import type {
     DeviceHistoryDataList,
     DeviceTotalData,
     GrowattDeviceStatusResponse,
+    GrowattReloginResponse,
     HistoryDataRequest,
 } from "@/types/growatt";
 
@@ -48,6 +49,14 @@ export const setMaxChargeCurrentApi = async (value: number) => {
     >("/growatt/inverter-settings/max-charge-current", {
         value,
     });
+
+    return response.data;
+};
+
+export const reloginGrowattApi = async () => {
+    const response = await ApiClient.post<
+        DataResponse<GrowattReloginResponse>
+    >("/growatt/relogin");
 
     return response.data;
 };

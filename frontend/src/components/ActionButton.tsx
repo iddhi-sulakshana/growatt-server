@@ -2,16 +2,44 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/AuthStore";
 import { Button } from "./ui/button";
-import { LogOut, Menu, X, LayoutDashboard, TrendingUp } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, TrendingUp, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { reloginGrowattApi } from "@/api/growatt";
+import { toast } from "sonner";
 
 const ActionButton = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isReloginning, setIsReloginning] = useState(false);
     const logout = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
     const location = useLocation();
 
+    const handleRelogin = async () => {
+        setIsReloginning(true);
+        try {
+            const res = await reloginGrowattApi();
+            if (res.data?.connected) {
+                toast.success(res.message ?? "Re-login successful");
+            } else {
+                toast.warning(res.message ?? "Re-login completed but connection status is unknown");
+            }
+            setIsOpen(false);
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message ?? "Failed to re-login to Growatt");
+        } finally {
+            setIsReloginning(false);
+        }
+    };
+
     const menuItems = [
+        // Relogin to Growatt
+        {
+            icon: RefreshCw,
+            label: "Relogin Growatt",
+            onClick: handleRelogin,
+            variant: "outline" as const,
+            disabled: isReloginning,
+        },
         // Dashboard navigation button
         {
             icon: LayoutDashboard,
@@ -23,6 +51,7 @@ const ActionButton = () => {
             variant: (location.pathname === "/dashboard"
                 ? "default"
                 : "outline") as "default" | "outline",
+            disabled: false,
         },
         // Analytics navigation button
         {
@@ -35,6 +64,7 @@ const ActionButton = () => {
             variant: (location.pathname === "/analytics"
                 ? "default"
                 : "outline") as "default" | "outline",
+            disabled: false,
         },
         {
             icon: LogOut,
@@ -44,6 +74,7 @@ const ActionButton = () => {
                 setIsOpen(false);
             },
             variant: "destructive" as const,
+            disabled: false,
         },
     ] as const;
 
@@ -109,8 +140,11 @@ const ActionButton = () => {
                                         variant={item.variant}
                                         onClick={item.onClick}
                                         title={item.label}
+                                        disabled={"disabled" in item ? item.disabled : false}
                                     >
-                                        <Icon className="w-4 h-4" />
+                                        <Icon
+                                            className={`w-4 h-4 ${"disabled" in item && item.disabled ? "animate-spin" : ""}`}
+                                        />
                                     </Button>
                                 </motion.div>
                             );
