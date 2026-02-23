@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { useAuthStore } from "@/lib/AuthStore";
+import { useThemeStore } from "@/lib/ThemeStore";
 import { Button } from "./ui/button";
-import { LogOut, Menu, X, LayoutDashboard, TrendingUp, RefreshCw } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, TrendingUp, RefreshCw, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { reloginGrowattApi } from "@/api/growatt";
 import { toast } from "sonner";
@@ -10,6 +12,7 @@ import { toast } from "sonner";
 const ActionButton = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isReloginning, setIsReloginning] = useState(false);
+    const { resolvedTheme, setTheme } = useTheme();
     const logout = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,6 +34,7 @@ const ActionButton = () => {
         }
     };
 
+    const isDark = resolvedTheme === "dark";
     const menuItems = [
         // Relogin to Growatt
         {
@@ -66,6 +70,19 @@ const ActionButton = () => {
                 : "outline") as "default" | "outline",
             disabled: false,
         },
+        // Theme toggle (saved to localStorage via ThemeStore)
+        {
+            icon: isDark ? Sun : Moon,
+            label: isDark ? "Light mode" : "Dark mode",
+            onClick: () => {
+                const next = isDark ? "light" : "dark";
+                useThemeStore.getState().setTheme(next);
+                setTheme(next);
+                setIsOpen(false);
+            },
+            variant: "outline" as const,
+            disabled: false,
+        },
         {
             icon: LogOut,
             label: "Logout",
@@ -76,7 +93,7 @@ const ActionButton = () => {
             variant: "destructive" as const,
             disabled: false,
         },
-    ] as const;
+    ];
 
     return (
         <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">

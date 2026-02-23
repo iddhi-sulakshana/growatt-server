@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTheme } from "next-themes";
 import { AlertCircle, Loader2 } from "lucide-react";
 import {
     LineChart,
@@ -15,6 +16,8 @@ import { getHistoryDataApi } from "@/api/growatt";
 import type { DeviceHistoryData } from "@/types/growatt";
 
 const Analytics = () => {
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
     const [startDate, setStartDate] = useState(() => {
         return new Date().toISOString().split("T")[0];
     });
@@ -201,15 +204,15 @@ const Analytics = () => {
         .sort((a, b) => a.timestamp - b.timestamp);
 
     return (
-        <main className="bg-gray-100 min-h-screen h-screen w-screen flex items-center justify-center overflow-y-auto relative">
+        <main className="bg-gray-100 dark:bg-background min-h-screen h-screen w-screen flex items-center justify-center overflow-y-auto relative">
             <ActionButton />
             <div className="w-full h-full p-4 md:p-8">
                 <div className="max-w-7xl mx-auto h-full flex flex-col gap-6">
                     {/* Date Range Selector */}
-                    <div className="bg-white rounded-lg shadow-md p-2 border-4 border-gray-500">
+                    <div className="bg-white dark:bg-card rounded-lg shadow-md dark:shadow-none dark:border dark:border-border p-2 border-4 border-gray-500 dark:border-border">
                         <div className="flex flex-col md:flex-row gap-4 items-end mb-4">
                             <div className="flex-1 flex gap-2 items-center">
-                                <label className="block text-sm font-medium text-gray-700 text-nowrap">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-foreground text-nowrap">
                                     Items per Request
                                 </label>
                                 <select
@@ -220,7 +223,7 @@ const Analytics = () => {
                                         )
                                     }
                                     disabled={isLoading}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-background dark:bg-background text-foreground"
                                 >
                                     <option value={1}>1</option>
                                     <option value={2}>2</option>
@@ -233,7 +236,7 @@ const Analytics = () => {
                         </div>
                         <div className="flex flex-col md:flex-row gap-4 items-end">
                             <div className="flex-1 flex gap-2 items-center">
-                                <label className="block text-sm font-medium text-gray-700 text-nowrap">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-foreground text-nowrap">
                                     Start Date
                                 </label>
                                 <input
@@ -243,11 +246,11 @@ const Analytics = () => {
                                         setStartDate(e.target.value)
                                     }
                                     disabled={isLoading}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-background dark:bg-background text-foreground"
                                 />
                             </div>
                             <div className="flex-1 flex gap-2 items-center">
-                                <label className="block text-sm font-medium text-gray-700 text-nowrap">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-foreground text-nowrap">
                                     End Date
                                 </label>
                                 <input
@@ -255,22 +258,22 @@ const Analytics = () => {
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
                                     disabled={isLoading}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-background dark:bg-background text-foreground"
                                 />
                             </div>
                             <button
                                 onClick={handleLoadData}
                                 className={`px-6 py-2 text-white rounded-lg font-medium ${
                                     isLoading
-                                        ? "bg-red-600 hover:bg-red-700"
-                                        : "bg-green-600 hover:bg-green-700"
+                                        ? "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
+                                        : "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500"
                                 }`}
                             >
                                 {isLoading ? "Stop" : "Load"}
                             </button>
                         </div>
                         {chartData.length > 0 && (
-                            <p className="text-sm text-gray-600 mt-4">
+                            <p className="text-sm text-gray-600 dark:text-muted-foreground mt-4">
                                 Total data points: {chartData.length}
                             </p>
                         )}
@@ -278,8 +281,8 @@ const Analytics = () => {
 
                     {/* Toggle Controls */}
                     {formattedChartData.length > 0 && (
-                        <div className="bg-white rounded-lg shadow-md p-4 border-4 border-gray-500">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                        <div className="bg-white dark:bg-card rounded-lg shadow-md dark:shadow-none dark:border dark:border-border p-4 border-4 border-gray-500 dark:border-border">
+                            <h3 className="text-sm font-semibold text-gray-700 dark:text-foreground mb-3">
                                 Toggle Chart Lines
                             </h3>
                             <div className="flex flex-wrap gap-3">
@@ -300,7 +303,7 @@ const Analytics = () => {
                                                     field as keyof typeof fieldToggles
                                                 )
                                             }
-                                            className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                            className="w-4 h-4 rounded border-gray-300 dark:border-border text-green-600 dark:text-green-500 focus:ring-green-500 dark:focus:ring-green-400"
                                         />
                                         <div className="flex items-center gap-2">
                                             <div
@@ -310,7 +313,7 @@ const Analytics = () => {
                                                         fieldColors[field],
                                                 }}
                                             />
-                                            <span className="text-sm text-gray-700">
+                                            <span className="text-sm text-gray-700 dark:text-foreground">
                                                 {fieldLabels[field]}
                                             </span>
                                         </div>
@@ -321,23 +324,23 @@ const Analytics = () => {
                     )}
 
                     {/* Chart Area */}
-                    <div className="flex-1 bg-white rounded-lg shadow-md p-1 border-4 border-gray-500">
+                    <div className="flex-1 bg-white dark:bg-card rounded-lg shadow-md dark:shadow-none dark:border dark:border-border p-1 border-4 border-gray-500 dark:border-border">
                         {isError ? (
                             <div className="flex flex-col items-center justify-center h-64">
-                                <AlertCircle className="w-10 h-10 text-red-500" />
-                                <p className="text-sm font-bold mt-2">
+                                <AlertCircle className="w-10 h-10 text-red-500 dark:text-red-400" />
+                                <p className="text-sm font-bold mt-2 text-foreground">
                                     Failed to load analytics
                                 </p>
                                 <button
                                     onClick={handleLoadData}
-                                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                    className="mt-4 px-4 py-2 bg-green-600 dark:bg-green-600 dark:hover:bg-green-500 text-white rounded-lg hover:bg-green-700"
                                 >
                                     Retry
                                 </button>
                             </div>
                         ) : formattedChartData.length === 0 && !isLoading ? (
                             <div className="flex items-center justify-center h-64">
-                                <p className="text-gray-600">
+                                <p className="text-gray-600 dark:text-muted-foreground">
                                     No data available for the selected date
                                     range
                                 </p>
@@ -345,7 +348,7 @@ const Analytics = () => {
                         ) : (
                             <div className="w-full h-full flex flex-col">
                                 {isLoading && (
-                                    <div className="flex items-center gap-2 mb-4 text-green-600">
+                                    <div className="flex items-center gap-2 mb-4 text-green-600 dark:text-green-400">
                                         <Loader2 className="w-5 h-5 animate-spin" />
                                         <p className="text-sm font-medium">
                                             Loading data... ({chartData.length}{" "}
@@ -367,13 +370,18 @@ const Analytics = () => {
                                                 bottom: 0,
                                             }}
                                         >
-                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <CartesianGrid
+                                                strokeDasharray="3 3"
+                                                stroke={isDark ? "#374151" : "#e5e7eb"}
+                                            />
                                             <XAxis
                                                 dataKey="time"
                                                 angle={-90}
                                                 textAnchor="end"
                                                 height={100}
                                                 interval="preserveStartEnd"
+                                                stroke={isDark ? "#9ca3af" : "#374151"}
+                                                tick={{ fill: isDark ? "#9ca3af" : "#374151" }}
                                                 tickFormatter={(value) => {
                                                     const date = new Date(
                                                         value
@@ -388,9 +396,22 @@ const Analytics = () => {
                                                     );
                                                 }}
                                             />
-                                            <YAxis angle={-80} />
-                                            <Tooltip />
-                                            <Legend />
+                                            <YAxis
+                                                angle={-80}
+                                                stroke={isDark ? "#9ca3af" : "#374151"}
+                                                tick={{ fill: isDark ? "#9ca3af" : "#374151" }}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: isDark ? "#1f2937" : "#fff",
+                                                    border: isDark ? "1px solid #374151" : "1px solid #e5e7eb",
+                                                    borderRadius: "6px",
+                                                }}
+                                                labelStyle={{ color: isDark ? "#e5e7eb" : "#111827" }}
+                                            />
+                                            <Legend
+                                                wrapperStyle={{ color: isDark ? "#e5e7eb" : "#374151" }}
+                                            />
                                             {fieldToggles.vBat && (
                                                 <Line
                                                     type="monotone"

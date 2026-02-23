@@ -71,13 +71,13 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-100 flex items-center justify-center p-4">
+        <div className="min-h-screen w-full bg-gray-100 dark:bg-background flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="bg-white rounded-lg shadow-lg p-8 space-y-6 relative overflow-hidden"
+                    className="bg-white dark:bg-card rounded-lg shadow-lg dark:shadow-none dark:border dark:border-border p-8 space-y-6 relative overflow-hidden"
                 >
                     {/* Background shimmer effect */}
                     <motion.div
@@ -126,7 +126,7 @@ const Login = () => {
                             animate="visible"
                             custom={0}
                         >
-                            <Label htmlFor="username" className="text-gray-500">
+                            <Label htmlFor="username" className="text-gray-500 dark:text-muted-foreground">
                                 Username
                             </Label>
                             <motion.div
@@ -140,7 +140,7 @@ const Login = () => {
                                     onChange={(e) =>
                                         setUsername(e.target.value)
                                     }
-                                    className="focus-visible:ring-green-500 hover:border-green-400 py-5"
+                                    className="focus-visible:ring-green-500 dark:focus-visible:ring-green-400 hover:border-green-400 dark:hover:border-border py-5 bg-background dark:bg-background text-foreground"
                                     placeholder="Enter your username"
                                     required
                                 />
@@ -155,7 +155,7 @@ const Login = () => {
                             animate="visible"
                             custom={1}
                         >
-                            <Label htmlFor="password" className="text-gray-500">
+                            <Label htmlFor="password" className="text-gray-500 dark:text-muted-foreground">
                                 Password
                             </Label>
                             <motion.div
@@ -169,7 +169,7 @@ const Login = () => {
                                     onChange={(e) =>
                                         setPassword(e.target.value)
                                     }
-                                    className="focus-visible:ring-green-500 hover:border-green-400 py-5"
+                                    className="focus-visible:ring-green-500 dark:focus-visible:ring-green-400 hover:border-green-400 dark:hover:border-border py-5 bg-background dark:bg-background text-foreground"
                                     placeholder="Enter your password"
                                     required
                                 />
@@ -203,7 +203,7 @@ const Login = () => {
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="relative w-full bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="relative w-full bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 text-white shadow-md hover:shadow-lg dark:shadow-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Logging in..." : "Login"}
                                 </Button>
