@@ -43,10 +43,29 @@ export const getMaxChargeCurrentApi = async () => {
     return response.data;
 };
 
+export const getAcOutputSourceApi = async () => {
+    const response = await ApiClient.get<DataResponse<{ value: number }>>(
+        "/growatt/inverter-settings/ac-output-source"
+    );
+
+    return response.data;
+};
+
 export const setMaxChargeCurrentApi = async (value: number) => {
     const response = await ApiClient.post<
         DataResponse<{ success: boolean; message: string }>
     >("/growatt/inverter-settings/max-charge-current", {
+        value,
+    });
+
+    return response.data;
+};
+
+/** AC output source: 0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority */
+export const setAcOutputSourceApi = async (value: number) => {
+    const response = await ApiClient.post<
+        DataResponse<{ success: boolean; message: string }>
+    >("/growatt/inverter-settings/ac-output-source", {
         value,
     });
 

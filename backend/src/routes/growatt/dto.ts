@@ -58,3 +58,25 @@ export type SetMaxChargeCurrentResponse = {
 export type GetMaxChargeCurrentResponse = {
     value: number;
 };
+
+/** AC output source: 0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority */
+export const setAcOutputSourceRequestSchema = z.object({
+    value: z.coerce
+        .number()
+        .int("Value must be an integer")
+        .min(0, "Value must be 0-3")
+        .max(3, "Value must be 0-3"),
+});
+
+export type SetAcOutputSourceRequest = z.infer<
+    typeof setAcOutputSourceRequestSchema
+>;
+
+export type SetAcOutputSourceResponse = {
+    success: boolean;
+    message: string;
+};
+
+export type GetAcOutputSourceResponse = {
+    value: number;
+};

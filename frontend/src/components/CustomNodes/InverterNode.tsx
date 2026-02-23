@@ -8,10 +8,12 @@ import {
     HoverCardTrigger,
 } from "../ui/hover-card";
 import LiveInverter from "../HoverCards/LiveInverter";
+import { useInverterModalStore } from "@/lib/InverterModalStore";
 
 const InverterNode = () => {
     const { data } = getDeviceStatusService();
     const totalSolar = Number(data?.data?.panelPower ?? 0);
+    const openModal = useInverterModalStore((state) => state.openModal);
 
     return (
         <HoverCard>
@@ -31,8 +33,14 @@ const InverterNode = () => {
                             )}
                         </p>
                     </div>
-                    {/* Icon or Frequency Wave */}
-                    <div className="w-16 h-16 flex justify-center items-center">
+                    {/* Icon or Frequency Wave - click to open AC output source modal */}
+                    <div
+                        className="w-16 h-16 flex justify-center items-center cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openModal();
+                        }}
+                    >
                         <ServerCrash className="w-13 h-13 text-black-500" />
                     </div>
                     <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">

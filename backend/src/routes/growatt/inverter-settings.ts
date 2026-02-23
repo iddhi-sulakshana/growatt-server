@@ -15,6 +15,7 @@ export type InverterSettingType =
  */
 export const STORAGE_SPF5000_SETTINGS = {
     MAX_CHARGE_CURRENT: "storage_spf5000_max_charge_current",
+    AC_OUTPUT_SOURCE: "storage_spf5000_ac_output_source",
     // Add more SPF5000 settings here as needed
 } as const;
 

@@ -1067,6 +1067,7 @@ paths:
                           type: string
                         example:
                           - storage_spf5000_max_charge_current
+                          - storage_spf5000_ac_output_source
                       actions:
                         type: array
                         items:
@@ -1207,6 +1208,130 @@ paths:
                   message:
                     type: string
                     example: Failed to set max charge current
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/inverter-settings/ac-output-source:
+    get:
+      summary: Get AC output source
+      tags:
+        - Growatt
+      description: Retrieves the current AC output source setting for storage devices. 0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority
+      responses:
+        '200':
+          description: AC output source retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: AC output source retrieved successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                        example: 0
+                        description: "0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority"
+        '400':
+          description: Bad request (unsupported device type)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Getting AC output source is not supported for device type: mix"
+                  status:
+                    type: number
+                    example: 400
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to get AC output source
+                  status:
+                    type: number
+                    example: 500
+
+  /growatt/inverter-settings/ac-output-source:
+    post:
+      summary: Set AC output source
+      tags:
+        - Growatt
+      description: Sets the AC output source for storage devices. 0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: number
+                  minimum: 0
+                  maximum: 3
+                  description: "0=SBU Priority, 1=Solar First, 2=Utility First, 3=SUB Priority"
+                  example: 0
+      responses:
+        '200':
+          description: AC output source set successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: AC output source set successfully
+                  status:
+                    type: number
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      message:
+                        type: string
+                        example: Setting applied
+        '400':
+          description: Bad request (invalid value or unsupported device type)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: number
+                    example: 400
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to set AC output source
                   status:
                     type: number
                     example: 500

@@ -3,7 +3,9 @@ import {
     getTotalDataApi,
     getHistoryDataApi,
     getMaxChargeCurrentApi,
+    getAcOutputSourceApi,
     setMaxChargeCurrentApi,
+    setAcOutputSourceApi,
 } from "@/api/growatt";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -81,6 +83,21 @@ export const getMaxChargeCurrentService = () => {
     });
 };
 
+export const getAcOutputSourceService = () => {
+    return useQuery({
+        queryKey: ["ac-output-source"],
+        queryFn: getAcOutputSourceApi,
+        // Dont refetch unless manually triggered
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        refetchIntervalInBackground: false,
+        refetchInterval: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
+    });
+};
+
 export const useSetMaxChargeCurrent = () => {
     const queryClient = useQueryClient();
 
@@ -94,6 +111,21 @@ export const useSetMaxChargeCurrent = () => {
             toast.error(
                 error?.response?.data?.message ||
                     "Failed to set max charge current",
+            );
+        },
+    });
+};
+
+export const useSetAcOutputSource = () => {
+    return useMutation({
+        mutationFn: setAcOutputSourceApi,
+        onSuccess: () => {
+            toast.success("AC output source set successfully");
+        },
+        onError: (error: any) => {
+            toast.error(
+                error?.response?.data?.message ||
+                    "Failed to set AC output source",
             );
         },
     });

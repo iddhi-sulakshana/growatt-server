@@ -1,11 +1,14 @@
 import { ApiError, type DataResponse } from "@/types/api-contract";
 import type {
+    GetAcOutputSourceResponse,
     GetMaxChargeCurrentResponse,
     GrowattDeviceStatusResponse,
     GrowattReloginResponse,
     GrowattSubscriptionStatusResponse,
     HistoryDataRequest,
     PlantFaultLogRequest,
+    SetAcOutputSourceRequest,
+    SetAcOutputSourceResponse,
     SetMaxChargeCurrentRequest,
     SetMaxChargeCurrentResponse,
 } from "./dto";
@@ -393,6 +396,124 @@ export async function getMaxChargeCurrentService(): Promise<
         winston.error("Growatt: Get max charge current failed", error);
         throw new ApiError(
             error.message || "Failed to get max charge current",
+            HTTP_STATUS.INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+export async function getAcOutputSourceService(): Promise<
+    DataResponse<GetAcOutputSourceResponse>
+> {
+    try {
+        const device = growatt.getDevice();
+
+        if (!device) {
+            throw new ApiError(
+                "Growatt: Device not available",
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        const [deviceType] = device;
+
+        if (deviceType === "storage") {
+            const serialNum = growatt.getSerialNoOfDevice(device);
+            const result = await growatt.getStorageSetting(
+                STORAGE_SPF5000_SETTINGS.AC_OUTPUT_SOURCE,
+                serialNum
+            );
+
+            if (!result || result.success !== true) {
+                throw new ApiError(
+                    result?.msg?.toString() ||
+                        "Failed to get AC output source",
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            const value = result.msg
+                ? typeof result.msg === "number"
+                    ? result.msg
+                    : parseInt(result.msg.toString(), 10) || 0
+                : 0;
+
+            return {
+                message: "AC output source retrieved successfully",
+                status: HTTP_STATUS.OK,
+                data: {
+                    value,
+                },
+            };
+        } else {
+            throw new ApiError(
+                `Getting AC output source is not supported for device type: ${deviceType}`,
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+    } catch (error: any) {
+        winston.error("Growatt: Get AC output source failed", error);
+        throw new ApiError(
+            error.message || "Failed to get AC output source",
+            HTTP_STATUS.INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+export async function setAcOutputSourceService(
+    payload: SetAcOutputSourceRequest
+): Promise<DataResponse<SetAcOutputSourceResponse>> {
+    try {
+        const device = growatt.getDevice();
+
+        if (!device) {
+            throw new ApiError(
+                "Growatt: Device not available",
+                HTTP_STATUS.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        const [deviceType] = device;
+
+        if (deviceType === "storage") {
+            const serialNum = growatt.getSerialNoOfDevice(device);
+            const result = await growatt.setStorageSetting(
+                SETTING_ACTIONS.STORAGE_SPF5000_SET,
+                serialNum,
+                STORAGE_SPF5000_SETTINGS.AC_OUTPUT_SOURCE,
+                {
+                    param1: payload.value.toString(),
+                    param2: "",
+                    param3: "",
+                    param4: "",
+                }
+            );
+
+            if (!result || result.success !== true) {
+                throw new ApiError(
+                    result?.msg?.toString() ||
+                        "Failed to set AC output source",
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            return {
+                message: "AC output source set successfully",
+                status: HTTP_STATUS.OK,
+                data: {
+                    success: true,
+                    message: result.msg?.toString() || "Setting applied",
+                },
+            };
+        } else {
+            throw new ApiError(
+                `Setting AC output source is not supported for device type: ${deviceType}`,
+                HTTP_STATUS.BAD_REQUEST
+            );
+        }
+    } catch (error: any) {
+        winston.error("Growatt: Set AC output source failed", error);
+        throw new ApiError(
+            error.message || "Failed to set AC output source",
             HTTP_STATUS.INTERNAL_SERVER_ERROR
         );
     }
