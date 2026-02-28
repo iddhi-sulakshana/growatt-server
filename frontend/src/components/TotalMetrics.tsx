@@ -27,6 +27,21 @@ const TotalMetrics = () => {
             : 0;
     };
 
+    // Format total: if >= 1000 kWh show "1Gw" + "234.5Kw" on two lines, else "193.5Kw"
+    const formatTotal = (
+        value: number
+    ): { top: string; bottom: string | null } => {
+        if (value >= 1000) {
+            const gWh = Math.floor(value / 1000);
+            const remainderKw = value - gWh * 1000;
+            return {
+                top: gWh + "Gw",
+                bottom: remainderKw.toFixed(1) + "Kw",
+            };
+        }
+        return { top: value.toFixed(1) + "Kw", bottom: null };
+    };
+
     // Solar Output
     const solarToday = getValue("epvToday");
     const solarTotal = getValue("epvTotal");
@@ -67,8 +82,8 @@ const TotalMetrics = () => {
                     </p>
                 </div>
                 <div className="flex items-center justify-around w-full p-2 h-full">
-                    <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {solarToday.toFixed(1)}
+                    <div className="font-mono font-bold flex flex-col items-center justify-center text-foreground">
+                        <span className="md:text-4xl text-md">{solarToday.toFixed(1)}</span>
                         <div className="flex flex-col items-center justify-center">
                             <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
                             <div className="md:text-lg text-xs text-muted-foreground">Today</div>
@@ -79,11 +94,22 @@ const TotalMetrics = () => {
                         className="border border-gray-500 dark:border-border"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {solarTotal.toFixed(1)}
-                        <div className="flex flex-col items-center justify-center">
-                            <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
-                            <div className="md:text-lg text-xs text-muted-foreground">Total</div>
-                        </div>
+                        {(() => {
+                            const f = formatTotal(solarTotal);
+                            return (
+                                <>
+                                    {f.bottom != null ? (
+                                        <>
+                                            <span className="md:text-xl text-sm">{f.top}</span>
+                                            <span className="md:text-4xl text-md">{f.bottom}</span>
+                                        </>
+                                    ) : (
+                                        <span className="md:text-4xl text-md">{f.top}</span>
+                                    )}
+                                </>
+                            );
+                        })()}
+                        <div className="md:text-lg text-xs text-muted-foreground">Total</div>
                     </div>
                 </div>
             </div>
@@ -102,8 +128,8 @@ const TotalMetrics = () => {
                     </p>
                 </div>
                 <div className="flex items-center justify-around w-full p-2 h-full">
-                    <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {dischargeToday.toFixed(1)}
+                    <div className="font-mono font-bold flex flex-col items-center justify-center text-foreground">
+                        <span className="md:text-4xl text-md">{dischargeToday.toFixed(1)}</span>
                         <div className="flex flex-col items-center justify-center">
                             <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
                             <div className="md:text-lg text-xs text-muted-foreground">Today</div>
@@ -114,11 +140,22 @@ const TotalMetrics = () => {
                         className="border border-gray-500 dark:border-border"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {dischargeTotal.toFixed(1)}
-                        <div className="flex flex-col items-center justify-center">
-                            <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
-                            <div className="md:text-lg text-xs text-muted-foreground">Total</div>
-                        </div>
+                        {(() => {
+                            const f = formatTotal(dischargeTotal);
+                            return (
+                                <>
+                                    {f.bottom != null ? (
+                                        <>
+                                            <span className="md:text-xl text-sm">{f.top}</span>
+                                            <span className="md:text-4xl text-md">{f.bottom}</span>
+                                        </>
+                                    ) : (
+                                        <span className="md:text-4xl text-md">{f.top}</span>
+                                    )}
+                                </>
+                            );
+                        })()}
+                        <div className="md:text-lg text-xs text-muted-foreground">Total</div>
                     </div>
                 </div>
             </div>
@@ -135,8 +172,8 @@ const TotalMetrics = () => {
                     </p>
                 </div>
                 <div className="flex items-center justify-around w-full p-2 h-full">
-                    <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {gridToday.toFixed(1)}
+                    <div className="font-mono font-bold flex flex-col items-center justify-center text-foreground">
+                        <span className="md:text-4xl text-md">{gridToday.toFixed(1)}</span>
                         <div className="flex flex-col items-center justify-center">
                             <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
                             <div className="md:text-lg text-xs text-muted-foreground">Today</div>
@@ -147,11 +184,22 @@ const TotalMetrics = () => {
                         className="border border-gray-500 dark:border-border"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {gridTotal.toFixed(1)}
-                        <div className="flex flex-col items-center justify-center">
-                            <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
-                            <div className="md:text-lg text-xs text-muted-foreground">Total</div>
-                        </div>
+                        {(() => {
+                            const f = formatTotal(gridTotal);
+                            return (
+                                <>
+                                    {f.bottom != null ? (
+                                        <>
+                                            <span className="md:text-xl text-sm">{f.top}</span>
+                                            <span className="md:text-4xl text-md">{f.bottom}</span>
+                                        </>
+                                    ) : (
+                                        <span className="md:text-4xl text-md">{f.top}</span>
+                                    )}
+                                </>
+                            );
+                        })()}
+                        <div className="md:text-lg text-xs text-muted-foreground">Total</div>
                     </div>
                 </div>
             </div>
@@ -168,8 +216,8 @@ const TotalMetrics = () => {
                     </p>
                 </div>
                 <div className="flex items-center justify-around w-full p-2 h-full">
-                    <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {loadToday.toFixed(1)}
+                    <div className="font-mono font-bold flex flex-col items-center justify-center text-foreground">
+                        <span className="md:text-4xl text-md">{loadToday.toFixed(1)}</span>
                         <div className="flex flex-col items-center justify-center">
                             <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
                             <div className="md:text-lg text-xs text-muted-foreground">Today</div>
@@ -180,11 +228,22 @@ const TotalMetrics = () => {
                         className="border border-gray-500 dark:border-border"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
-                        {loadTotal.toFixed(1)}
-                        <div className="flex flex-col items-center justify-center">
-                            <div className="md:text-lg text-xs text-muted-foreground">kWh</div>
-                            <div className="md:text-lg text-xs text-muted-foreground">Total</div>
-                        </div>
+                        {(() => {
+                            const f = formatTotal(loadTotal);
+                            return (
+                                <>
+                                    {f.bottom != null ? (
+                                        <>
+                                            <span className="md:text-xl text-sm">{f.top}</span>
+                                            <span className="md:text-4xl text-md">{f.bottom}</span>
+                                        </>
+                                    ) : (
+                                        <span className="md:text-4xl text-md">{f.top}</span>
+                                    )}
+                                </>
+                            );
+                        })()}
+                        <div className="md:text-lg text-xs text-muted-foreground">Total</div>
                     </div>
                 </div>
             </div>
