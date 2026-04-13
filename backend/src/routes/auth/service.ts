@@ -57,7 +57,7 @@ export async function loginService(
     const token = jwt.sign(
         { id: adminUser.id, username: adminUser.username },
         ENV.JWT_SECRET,
-        { expiresIn: "24h" }
+        { expiresIn: "30d" }
     );
 
     return {
