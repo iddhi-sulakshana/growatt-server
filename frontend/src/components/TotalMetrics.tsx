@@ -71,7 +71,7 @@ const TotalMetrics = () => {
     return (
         <>
             {/* Solar Output */}
-            <div className="col-span-1 row-span-1 border-4 border-gray-500 dark:border-border rounded-lg flex flex-col items-center justify-center bg-card dark:bg-card">
+            <div className="col-span-1 row-span-1 rounded-2xl flex flex-col items-center justify-center backdrop-blur-md bg-white/50 dark:bg-slate-900/30 border border-white/80 dark:border-white/10 shadow-xl">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
                     <Sun
                         className="w-1/2 h-1/2 text-teal-500 dark:text-teal-400 animate-spin transition-all"
@@ -91,7 +91,7 @@ const TotalMetrics = () => {
                     </div>
                     <Separator
                         orientation="vertical"
-                        className="border border-gray-500 dark:border-border"
+                        className="border border-black/10 dark:border-white/15"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
                         {(() => {
@@ -115,7 +115,7 @@ const TotalMetrics = () => {
             </div>
 
             {/* Discharging */}
-            <div className="col-span-1 row-span-1 border-4 border-gray-500 dark:border-border rounded-lg flex flex-col items-center justify-center bg-card dark:bg-card">
+            <div className="col-span-1 row-span-1 rounded-2xl flex flex-col items-center justify-center backdrop-blur-md bg-white/50 dark:bg-slate-900/30 border border-white/80 dark:border-white/10 shadow-xl">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
                     {(() => {
                         const DischargeIcon = chargingIcons[dischargeIconIndex];
@@ -137,7 +137,7 @@ const TotalMetrics = () => {
                     </div>
                     <Separator
                         orientation="vertical"
-                        className="border border-gray-500 dark:border-border"
+                        className="border border-black/10 dark:border-white/15"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
                         {(() => {
@@ -161,7 +161,7 @@ const TotalMetrics = () => {
             </div>
 
             {/* Imported from Grid */}
-            <div className="col-span-1 row-span-1 border-4 border-gray-500 dark:border-border rounded-lg flex flex-col items-center justify-center bg-card dark:bg-card">
+            <div className="col-span-1 row-span-1 rounded-2xl flex flex-col items-center justify-center backdrop-blur-md bg-white/50 dark:bg-slate-900/30 border border-white/80 dark:border-white/10 shadow-xl">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
                     <UtilityPole
                         className="w-1/2 h-1/2 text-red-500 dark:text-red-400 animate-pulse transition-all"
@@ -181,7 +181,7 @@ const TotalMetrics = () => {
                     </div>
                     <Separator
                         orientation="vertical"
-                        className="border border-gray-500 dark:border-border"
+                        className="border border-black/10 dark:border-white/15"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
                         {(() => {
@@ -205,7 +205,7 @@ const TotalMetrics = () => {
             </div>
 
             {/* Load Consumption */}
-            <div className="col-span-1 row-span-1 border-4 border-gray-500 dark:border-border rounded-lg flex flex-col items-center justify-center bg-card dark:bg-card">
+            <div className="col-span-1 row-span-1 rounded-2xl flex flex-col items-center justify-center backdrop-blur-md bg-white/50 dark:bg-slate-900/30 border border-white/80 dark:border-white/10 shadow-xl">
                 <div className="flex flex-col items-center justify-center w-full p-2 gap-2">
                     <Zap
                         className="w-1/2 h-1/2 text-orange-500 dark:text-orange-400 animate-pulse transition-all"
@@ -225,7 +225,7 @@ const TotalMetrics = () => {
                     </div>
                     <Separator
                         orientation="vertical"
-                        className="border border-gray-500 dark:border-border"
+                        className="border border-black/10 dark:border-white/15"
                     />
                     <div className="md:text-4xl text-md font-mono font-bold flex flex-col items-center justify-center text-foreground">
                         {(() => {

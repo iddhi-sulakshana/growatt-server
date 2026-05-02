@@ -4,8 +4,10 @@ import {
     getHistoryDataApi,
     getMaxChargeCurrentApi,
     getAcOutputSourceApi,
+    getChargeSourceApi,
     setMaxChargeCurrentApi,
     setAcOutputSourceApi,
+    setChargeSourceApi,
 } from "@/api/growatt";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -126,6 +128,34 @@ export const useSetAcOutputSource = () => {
             toast.error(
                 error?.response?.data?.message ||
                     "Failed to set AC output source",
+            );
+        },
+    });
+};
+
+export const getChargeSourceService = () => {
+    return useQuery({
+        queryKey: ["charge-source"],
+        queryFn: getChargeSourceApi,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        refetchIntervalInBackground: false,
+        refetchInterval: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
+    });
+};
+
+export const useSetChargeSource = () => {
+    return useMutation({
+        mutationFn: setChargeSourceApi,
+        onSuccess: () => {
+            toast.success("Charge source set successfully");
+        },
+        onError: (error: any) => {
+            toast.error(
+                error?.response?.data?.message || "Failed to set charge source",
             );
         },
     });

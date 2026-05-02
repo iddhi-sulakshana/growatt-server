@@ -12,14 +12,18 @@ import {
     getMaxChargeCurrentService,
     useSetMaxChargeCurrent,
 } from "@/service/growatt";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sun } from "lucide-react";
 import { useBatteryModalStore } from "@/lib/BatteryModalStore";
+import { useChargeSourceModalStore } from "@/lib/ChargeSourceModalStore";
 
 const CHARGE_VALUES = [1, 5, 10, 15, 20, 25, 30, 100];
 
 const BatteryMaxChargeModal = () => {
     const isOpen = useBatteryModalStore((state) => state.isOpen);
     const closeModal = useBatteryModalStore((state) => state.closeModal);
+    const openChargeSourceModal = useChargeSourceModalStore(
+        (state) => state.openModal,
+    );
     const { data, isLoading, refetch } = getMaxChargeCurrentService();
     const setMaxChargeCurrent = useSetMaxChargeCurrent();
     const [currentValue, setCurrentValue] = useState<number | null>(null);
@@ -153,6 +157,20 @@ const BatteryMaxChargeModal = () => {
                                         Set Custom
                                     </Button>
                                 </div>
+                            </div>
+                            <div className="pt-2 border-t">
+                                <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => {
+                                        closeModal();
+                                        openChargeSourceModal();
+                                    }}
+                                    disabled={isDisabled}
+                                >
+                                    <Sun className="mr-2 h-4 w-4" />
+                                    Set Charge Source
+                                </Button>
                             </div>
                         </>
                     )}

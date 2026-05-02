@@ -43,7 +43,7 @@ const InverterNode = () => {
                     >
                         <ServerCrash className="w-13 h-13 text-black-500" />
                     </div>
-                    <div className="text-sm font-semibold text-gray-700 text-center whitespace-nowrap">
+                    <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">
                         <p className="text-xs">Inverter</p>
                     </div>
                     {/* Handles */}

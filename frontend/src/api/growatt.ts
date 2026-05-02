@@ -72,6 +72,25 @@ export const setAcOutputSourceApi = async (value: number) => {
     return response.data;
 };
 
+export const getChargeSourceApi = async () => {
+    const response = await ApiClient.get<DataResponse<{ value: number }>>(
+        "/growatt/inverter-settings/charge-source"
+    );
+
+    return response.data;
+};
+
+/** Charge source: 0=Solar First, 1=Solar and Utility, 2=Only Solar */
+export const setChargeSourceApi = async (value: number) => {
+    const response = await ApiClient.post<
+        DataResponse<{ success: boolean; message: string }>
+    >("/growatt/inverter-settings/charge-source", {
+        value,
+    });
+
+    return response.data;
+};
+
 export const reloginGrowattApi = async () => {
     const response = await ApiClient.post<
         DataResponse<GrowattReloginResponse>

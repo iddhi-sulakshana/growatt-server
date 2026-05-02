@@ -7,26 +7,37 @@ import {
     DialogClose,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import {
-    getAcOutputSourceService,
-    useSetAcOutputSource,
-} from "@/service/growatt";
-import { Loader2, BatteryCharging, SunMedium, PlugZap, Shuffle } from "lucide-react";
-import { useInverterModalStore } from "@/lib/InverterModalStore";
+import { getChargeSourceService, useSetChargeSource } from "@/service/growatt";
+import { Loader2, Sun, SunMedium, Zap } from "lucide-react";
+import { useChargeSourceModalStore } from "@/lib/ChargeSourceModalStore";
 
-const AC_OUTPUT_OPTIONS = [
-    { value: 0, label: "SBU Priority", Icon: BatteryCharging },
-    { value: 1, label: "Solar First", Icon: SunMedium },
-    { value: 2, label: "Utility First", Icon: PlugZap },
-    { value: 3, label: "SUB Priority", Icon: Shuffle },
+const CHARGE_SOURCE_OPTIONS = [
+    {
+        value: 0,
+        label: "Solar First",
+        description: "Prioritise solar; use utility when solar is insufficient",
+        Icon: Sun,
+    },
+    {
+        value: 1,
+        label: "Solar and Utility",
+        description: "Charge from both solar and utility simultaneously",
+        Icon: SunMedium,
+    },
+    {
+        value: 2,
+        label: "Only Solar",
+        description: "Charge only from solar power",
+        Icon: Zap,
+    },
 ] as const;
 
-const AcOutputSourceModal = () => {
-    const isOpen = useInverterModalStore((state) => state.isOpen);
-    const closeModal = useInverterModalStore((state) => state.closeModal);
-    const setAcOutputSource = useSetAcOutputSource();
+const ChargeSourceModal = () => {
+    const isOpen = useChargeSourceModalStore((state) => state.isOpen);
+    const closeModal = useChargeSourceModalStore((state) => state.closeModal);
+    const setChargeSource = useSetChargeSource();
     const [isSetting, setIsSetting] = useState(false);
-    const { data, refetch } = getAcOutputSourceService();
+    const { data, refetch } = getChargeSourceService();
     const [currentValue, setCurrentValue] = useState<number | null>(null);
 
     // Silently refetch when modal opens; keep showing last known value
@@ -48,7 +59,7 @@ const AcOutputSourceModal = () => {
         setCurrentValue(value); // optimistic update
         setIsSetting(true);
         try {
-            await setAcOutputSource.mutateAsync(value);
+            await setChargeSource.mutateAsync(value);
             closeModal();
         } catch {
             setCurrentValue(previousValue); // revert on error
@@ -57,30 +68,30 @@ const AcOutputSourceModal = () => {
         }
     };
 
-    const isDisabled = isSetting || setAcOutputSource.isPending;
+    const isDisabled = isSetting || setChargeSource.isPending;
 
     return (
         <Dialog open={isOpen} onOpenChange={closeModal}>
             <DialogContent className="sm:max-w-md">
                 <DialogClose onClose={closeModal} />
                 <DialogHeader>
-                    <DialogTitle>AC Output Source</DialogTitle>
+                    <DialogTitle>Set Charge Source</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                     {currentValue !== null && (
                         <div className="text-center text-sm text-muted-foreground">
                             Current value:{" "}
                             <strong>
-                                {AC_OUTPUT_OPTIONS.find((o) => o.value === currentValue)?.label}{" "}
+                                {CHARGE_SOURCE_OPTIONS.find((o) => o.value === currentValue)?.label}{" "}
                                 ({currentValue})
                             </strong>
                         </div>
                     )}
                     <p className="text-sm text-muted-foreground">
-                        Choose the AC output source priority for the inverter.
+                        Choose the source used to charge the battery.
                     </p>
                     <div className="grid grid-cols-1 gap-2">
-                        {AC_OUTPUT_OPTIONS.map(({ value, label, Icon }) => {
+                        {CHARGE_SOURCE_OPTIONS.map(({ value, label, description, Icon }) => {
                             const isActive = currentValue === value;
                             return (
                                 <Button
@@ -94,6 +105,9 @@ const AcOutputSourceModal = () => {
                                         <Icon className="h-4 w-4" />
                                         <span className="font-medium">{label}</span>
                                     </div>
+                                    <span className="text-xs text-muted-foreground font-normal pl-6">
+                                        {description}
+                                    </span>
                                 </Button>
                             );
                         })}
@@ -110,4 +124,4 @@ const AcOutputSourceModal = () => {
     );
 };
 
-export default AcOutputSourceModal;
+export default ChargeSourceModal;

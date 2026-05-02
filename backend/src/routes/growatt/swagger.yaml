@@ -1266,7 +1266,6 @@ paths:
                     type: number
                     example: 500
 
-  /growatt/inverter-settings/ac-output-source:
     post:
       summary: Set AC output source
       tags:

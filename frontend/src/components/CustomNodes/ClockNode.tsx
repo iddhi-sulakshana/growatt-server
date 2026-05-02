@@ -54,17 +54,17 @@ const ClockNode = () => {
 
     return (
         <div className="flex flex-col items-center justify-center">
-            <div className="flex items-center justify-center font-mono font-extrabold text-blue-800 text-sm">
+            <div className="flex items-center justify-center font-mono font-extrabold text-blue-700 dark:text-blue-300 text-sm">
                 <FormattedTime value={hours} />
                 <span>:</span>
                 <FormattedTime value={minutes} />
                 <span>:</span>
                 <FormattedTime value={seconds} />
             </div>
-            <div className="text-blue-800 text-xs font-mono font-semibold">
+            <div className="text-blue-700 dark:text-blue-300 text-xs font-mono font-semibold">
                 {dateString}
             </div>
-            <div className="text-blue-800 text-xs font-mono font-semibold">
+            <div className="text-blue-700 dark:text-blue-300 text-xs font-mono font-semibold">
                 {new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
                     date
                 )}

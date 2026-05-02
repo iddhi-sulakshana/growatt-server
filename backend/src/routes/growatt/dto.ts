@@ -80,3 +80,25 @@ export type SetAcOutputSourceResponse = {
 export type GetAcOutputSourceResponse = {
     value: number;
 };
+
+/** Charge source: 0=Solar First, 1=Solar and Utility, 2=Only Solar */
+export const setChargeSourceRequestSchema = z.object({
+    value: z.coerce
+        .number()
+        .int("Value must be an integer")
+        .min(0, "Value must be 0-2")
+        .max(2, "Value must be 0-2"),
+});
+
+export type SetChargeSourceRequest = z.infer<
+    typeof setChargeSourceRequestSchema
+>;
+
+export type SetChargeSourceResponse = {
+    success: boolean;
+    message: string;
+};
+
+export type GetChargeSourceResponse = {
+    value: number;
+};

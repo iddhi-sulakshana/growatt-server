@@ -121,3 +121,17 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* ReactFlow transparent + glass nodes */
+.react-flow,
+.react-flow__renderer,
+.react-flow__container,
+.react-flow__pane {
+    background: transparent !important;
+}
+
+.react-flow__node {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}

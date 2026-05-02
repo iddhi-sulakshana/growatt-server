@@ -72,11 +72,11 @@ const WeatherNode = () => {
 
                     {/* Temperature */}
                     <div className="text-sm font-semibold text-center whitespace-nowrap">
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
                             {condition.charAt(0).toUpperCase() +
                                 condition.slice(1)}
                         </p>
-                        <p className="text-lg font-sans font-bold text-blue-600">
+                        <p className="text-lg font-sans font-bold text-blue-600 dark:text-blue-300">
                             {weather ? (
                                 <AnimatedNumber
                                     value={temperature}

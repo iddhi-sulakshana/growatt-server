@@ -6,9 +6,10 @@ import {
     type Connection,
     type Edge,
     type Node,
+    type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import CustomNode from "./CustomNode";
 import { getDeviceStatusService } from "@/service/growatt";
 
@@ -131,6 +132,7 @@ const disabledColor = "gray";
 const SystemDiagram = () => {
     const [nodes] = useNodesState(initialNodes);
     const [edges, setEdges] = useEdgesState(initialEdges);
+    const rfInstance = useRef<ReactFlowInstance | null>(null);
 
     const { data: deviceStatus } = getDeviceStatusService();
 
@@ -138,6 +140,14 @@ const SystemDiagram = () => {
         (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
         [setEdges]
     );
+
+    useEffect(() => {
+        const handleResize = () => {
+            rfInstance.current?.fitView({ padding: 0.05, duration: 200 });
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     useEffect(() => {
         if (!deviceStatus?.data) return;
@@ -235,6 +245,7 @@ const SystemDiagram = () => {
                 nodes={nodes}
                 edges={edges}
                 fitView={true}
+                onInit={(instance) => { rfInstance.current = instance; }}
                 onConnect={onConnect}
                 nodesDraggable={false}
                 panOnDrag={false}

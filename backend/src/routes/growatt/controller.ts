@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { Router as ExpressRouter } from "express";
 import {
     getAcOutputSourceService,
+    getChargeSourceService,
     getDeviceStatusDataService,
     getHistoryDataService,
     getMaxChargeCurrentService,
@@ -11,12 +12,14 @@ import {
     getTotalDataService,
     reloginService,
     setAcOutputSourceService,
+    setChargeSourceService,
     setMaxChargeCurrentService,
 } from "./service";
 import {
     historyDataRequestSchema,
     plantFaultLogRequestSchema,
     setAcOutputSourceRequestSchema,
+    setChargeSourceRequestSchema,
     setMaxChargeCurrentRequestSchema,
 } from "./dto";
 import { getAvailableSettingTypes } from "./inverter-settings";
@@ -145,6 +148,27 @@ router.post("/inverter-settings/ac-output-source", async (req, res) => {
     try {
         const validatedData = setAcOutputSourceRequestSchema.parse(req.body);
         const response = await setAcOutputSourceService(validatedData);
+        res.sendResponse(response);
+    } catch (error: any) {
+        res.sendResponse(error);
+    }
+});
+
+// Get charge source (0=Solar First, 1=Solar and Utility, 2=Only Solar)
+router.get("/inverter-settings/charge-source", async (_, res) => {
+    try {
+        const response = await getChargeSourceService();
+        res.sendResponse(response);
+    } catch (error: any) {
+        res.sendResponse(error);
+    }
+});
+
+// Set charge source (0=Solar First, 1=Solar and Utility, 2=Only Solar)
+router.post("/inverter-settings/charge-source", async (req, res) => {
+    try {
+        const validatedData = setChargeSourceRequestSchema.parse(req.body);
+        const response = await setChargeSourceService(validatedData);
         res.sendResponse(response);
     } catch (error: any) {
         res.sendResponse(error);

@@ -71,13 +71,18 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-100 dark:bg-background flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
+        <div className="min-h-screen w-full bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Ambient orbs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-400/20 dark:bg-blue-500/15 rounded-full blur-3xl" />
+                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-400/15 dark:bg-emerald-500/10 rounded-full blur-3xl" />
+            </div>
+            <div className="w-full max-w-md relative z-10">
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="bg-white dark:bg-card rounded-lg shadow-lg dark:shadow-none dark:border dark:border-border p-8 space-y-6 relative overflow-hidden"
+                    className="backdrop-blur-xl bg-white/60 dark:bg-slate-900/40 rounded-2xl border border-white/80 dark:border-white/10 shadow-2xl p-8 space-y-6 relative overflow-hidden"
                 >
                     {/* Background shimmer effect */}
                     <motion.div
