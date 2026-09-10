@@ -5,6 +5,23 @@
         <link rel="icon" type="image/png" href="/icon.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Growatt Server</title>
+
+        <!-- PWA: installable to the home screen, boots offline via /sw.js -->
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#8bbe3f" />
+        <meta
+            name="description"
+            content="Monitor and control your Growatt solar plant — live power flow, battery state, charge sources and generation analytics."
+        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <!-- Legacy alias: iOS below 17.4 only honours the apple- prefix -->
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Growatt" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="default"
+        />
         <style>
             .full-page-loader {
                 display: flex;
