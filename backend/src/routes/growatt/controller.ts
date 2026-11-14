@@ -23,8 +23,19 @@ import {
     setMaxChargeCurrentRequestSchema,
 } from "./dto";
 import { getAvailableSettingTypes } from "./inverter-settings";
+import { createLiveStreamHandler } from "./live";
+import { liveStatusStore } from "@/services/grobro/live-store";
 
 const router: ExpressRouter = Router();
+
+// Live device status as Server-Sent Events (GroBro when fresh, cloud otherwise)
+router.get(
+    "/live",
+    createLiveStreamHandler({
+        store: liveStatusStore,
+        refresh: getDeviceStatusDataService,
+    })
+);
 
 // Get the status of the device
 router.get("/device-status", async (_, res) => {

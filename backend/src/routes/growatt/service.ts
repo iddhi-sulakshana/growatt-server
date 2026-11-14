@@ -3,7 +3,6 @@ import type {
     GetAcOutputSourceResponse,
     GetChargeSourceResponse,
     GetMaxChargeCurrentResponse,
-    GrowattDeviceStatusResponse,
     GrowattReloginResponse,
     GrowattSubscriptionStatusResponse,
     HistoryDataRequest,
@@ -17,6 +16,7 @@ import type {
 } from "./dto";
 import HTTP_STATUS from "@/types/status-codes";
 import { growatt } from "@/services/growatt-instance";
+import { liveStatusStore, type LiveDeviceStatus } from "@/services/grobro/live-store";
 import winston from "winston";
 import type {
     DeviceHistoryDataList,
@@ -27,9 +27,19 @@ import type {
 import { SETTING_ACTIONS, STORAGE_SPF5000_SETTINGS } from "./inverter-settings";
 
 export async function getDeviceStatusDataService(): Promise<
-    DataResponse<GrowattDeviceStatusResponse>
+    DataResponse<LiveDeviceStatus>
 > {
     try {
+        // Fresh local data from GroBro wins; the cloud is only asked when it's stale.
+        const live = liveStatusStore.current();
+        if (live && liveStatusStore.isLive()) {
+            return {
+                message: "Device status data retrieved successfully",
+                status: HTTP_STATUS.OK,
+                data: live,
+            };
+        }
+
         const plantId = growatt.getPlantId();
         const device = growatt.getDevice();
 
@@ -52,10 +62,15 @@ export async function getDeviceStatusDataService(): Promise<
             );
         }
 
+        liveStatusStore.updateFromCloud(data);
         return {
             message: "Device status data retrieved successfully",
             status: HTTP_STATUS.OK,
-            data,
+            data: liveStatusStore.current() ?? {
+                ...data,
+                source: "cloud",
+                updatedAt: new Date().toISOString(),
+            },
         };
     } catch (error: any) {
         winston.error("Growatt: Get device status data failed", error);
