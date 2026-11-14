@@ -10,6 +10,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import paho.mqtt.client as mqtt
 import pytest
 from paho.mqtt.client import MQTTMessage
 
@@ -62,6 +63,7 @@ def cloud(client):
     """Cloud relay on for every device, a 300 s interval, a fake clock and a fake cloud link."""
     clock = {"now": 0.0}
     fc = MagicMock()
+    fc.publish.return_value.rc = mqtt.MQTT_ERR_SUCCESS
     with (
         patch.object(grobro_client, "GROWATT_CLOUD", "true"),
         patch.object(grobro_client, "GROWATT_CLOUD_ENABLED", True),
@@ -88,6 +90,34 @@ def test_non_reading_messages_always_relayed(cloud):
         _send(cloud, DEVICE_A, _message(function), 0)
         _send(cloud, DEVICE_A, _message(function), 10)
     assert cloud.fc.publish.call_count == 8
+
+
+def test_settings_relayed_while_readings_held_back(cloud):
+    _send(cloud, DEVICE_A, _message(0x04), 0)
+    _send(cloud, DEVICE_A, _message(0x05), 10)
+    _send(cloud, DEVICE_A, _message(0x06), 11)
+    _send(cloud, DEVICE_A, _message(0x04), 20)
+    _send(cloud, DEVICE_A, _message(0x04), 300)
+    functions = [call.kwargs["payload"][7] for call in cloud.fc.publish.call_args_list]
+    assert functions == [0x04, 0x05, 0x06, 0x04]
+
+
+def test_failed_cloud_connect_does_not_use_up_the_interval(cloud):
+    connect = cloud.client._Client__connect_to_growatt_server
+    connect.side_effect = [OSError("no route to mqtt.growatt.com"), cloud.fc]
+    _send(cloud, DEVICE_A, _message(0x04), 0)
+    _send(cloud, DEVICE_A, _message(0x04), 1)
+    assert cloud.fc.publish.call_count == 1
+
+
+def test_unsent_reading_does_not_use_up_the_interval(cloud):
+    not_connected = MagicMock(rc=mqtt.MQTT_ERR_NO_CONN)
+    sent = MagicMock(rc=mqtt.MQTT_ERR_SUCCESS)
+    cloud.fc.publish.side_effect = [not_connected, sent, sent]
+    _send(cloud, DEVICE_A, _message(0x04), 0)
+    _send(cloud, DEVICE_A, _message(0x04), 5)
+    _send(cloud, DEVICE_A, _message(0x04), 10)
+    assert cloud.fc.publish.call_count == 2
 
 
 def test_interval_zero_relays_every_reading(cloud):

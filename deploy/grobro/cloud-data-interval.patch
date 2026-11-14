@@ -1,5 +1,5 @@
 --- a/grobro/grobro/client.py	2026-11-14 12:54:35
-+++ b/grobro/grobro/client.py	2026-11-14 12:54:53
++++ b/grobro/grobro/client.py	2026-11-14 13:09:21
 @@ -9,6 +9,7 @@
  import struct
  import logging
@@ -28,32 +28,36 @@
  
      def start(self):
          LOG.debug("GroBro: Start")
-@@ -215,6 +222,20 @@
+@@ -215,6 +222,22 @@
      def __on_connect(self, client, userdata, flags, reason_code, properties):
        LOG.debug(f"Connected to GroBro MQTT server with result code {reason_code}")
        self._client.subscribe("c/#")      
 +
++    @staticmethod
++    def __is_throttled_reading(payload: bytes) -> bool:
++        # The Modbus function is the low byte of the message type, in the unscrambled header.
++        return (
++            GROWATT_CLOUD_DATA_INTERVAL > 0
++            and len(payload) >= 8
++            and payload[7] in CLOUD_THROTTLED_FUNCTIONS
++        )
++
 +    def __cloud_data_due(self, device_id: str, payload: bytes) -> bool:
 +        """Whether this message should go to Growatt Cloud now (see GROWATT_CLOUD_DATA_INTERVAL)."""
-+        # The Modbus function is the low byte of the message type, in the unscrambled header.
-+        if GROWATT_CLOUD_DATA_INTERVAL <= 0 or len(payload) < 8:
++        if not self.__is_throttled_reading(payload):
 +            return True
-+        if payload[7] not in CLOUD_THROTTLED_FUNCTIONS:
-+            return True
-+        now = time.monotonic()
 +        sent_at = self._cloud_data_sent_at.get(device_id)
-+        if sent_at is not None and now - sent_at < GROWATT_CLOUD_DATA_INTERVAL:
-+            return False
-+        self._cloud_data_sent_at[device_id] = now
-+        return True
++        return sent_at is None or time.monotonic() - sent_at >= GROWATT_CLOUD_DATA_INTERVAL
  
      def __on_message(self, client, userdata, msg: MQTTMessage):
          # check for forwarded messages and ignore them
-@@ -249,13 +270,16 @@
+@@ -249,13 +272,24 @@
                                  )
                                  return
  
--                        forward_client = self.__connect_to_growatt_server(device_id)
++                        # Connect for every message, so a held-back reading never delays the
++                        # cloud link (and the settings it carries back) after a failed connect.
+                         forward_client = self.__connect_to_growatt_server(device_id)
 -                        forward_client.publish(
 -                            msg.topic,
 -                            payload=msg.payload,
@@ -61,13 +65,18 @@
 -                            retain=msg.retain,
 -                        )
 +                        if self.__cloud_data_due(device_id, msg.payload):
-+                            forward_client = self.__connect_to_growatt_server(device_id)
-+                            forward_client.publish(
++                            result = forward_client.publish(
 +                                msg.topic,
 +                                payload=msg.payload,
 +                                qos=msg.qos,
 +                                retain=msg.retain,
 +                            )
++                            # Only a reading that actually went out starts the next interval.
++                            if (
++                                self.__is_throttled_reading(msg.payload)
++                                and result.rc == mqtt.MQTT_ERR_SUCCESS
++                            ):
++                                self._cloud_data_sent_at[device_id] = time.monotonic()
 +                        else:
 +                            LOG.debug("Holding back reading for %s from Growatt Cloud", device_id)
                      except Exception as e:
