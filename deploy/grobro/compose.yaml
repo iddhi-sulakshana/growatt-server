@@ -29,6 +29,9 @@ services:
       - "1883:1883" # plain with login: GroBro, backend, read-only tools
     volumes:
       - mosquitto-config:/mosquitto/config:ro
+      # Sessions survive restarts: the dongle reconnects with a persistent session and does
+      # not subscribe again, so without this it stops getting settings commands.
+      - mosquitto-data:/mosquitto/data
     restart: unless-stopped
 
   grobro:
@@ -53,6 +56,7 @@ services:
 
 volumes:
   mosquitto-config:
+  mosquitto-data:
 
 configs:
   init_script:
@@ -73,12 +77,16 @@ configs:
       fi
       cd /out
       cat > mosquitto.conf <<'EOF'
-      persistence false
+      persistence true
+      persistence_location /mosquitto/data/
+      autosave_interval 60
       log_dest stdout
       log_type error
       log_type warning
       log_type notice
       log_type information
+      log_type subscribe
+      log_type unsubscribe
       log_timestamp_format %Y-%m-%dT%H:%M:%S
       connection_messages true
       allow_anonymous false
