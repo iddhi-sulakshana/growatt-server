@@ -13,13 +13,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceHistoryData } from "@/types/growatt";
+import { useLiveConnectionStore } from "@/lib/LiveConnectionStore";
 
 export const getDeviceStatusService = () => {
+    const liveConnected = useLiveConnectionStore((state) => state.connected);
     return useQuery({
         queryKey: ["device-status"],
         queryFn: getDeviceStatusApi,
-        // Refetch every 5 seconds
-        refetchInterval: 5000,
+        // The live stream (useLiveDeviceStatus) pushes updates; poll every 5 s only
+        // while it's disconnected.
+        refetchInterval: liveConnected ? false : 5000,
     });
 };
 

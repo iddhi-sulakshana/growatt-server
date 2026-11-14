@@ -135,6 +135,8 @@ export type DeviceStatusData = {
     iTotal: string; // Total inverter output current (A)
     rateVA: string; // Apparent power (VA)
     status: string; // Storage device status (0: Operating, 1: Charge, 2: Discharge, 3: Fault, 4: Flash)
+    source?: "grobro" | "cloud"; // where the reading came from (local GroBro or Growatt cloud)
+    updatedAt?: string; // ISO time the backend received the reading
 };
 
 export type DeviceHistoryDataList = {

@@ -4,8 +4,12 @@ import ActionButton from "@/components/ActionButton";
 import BatteryMaxChargeModal from "@/components/BatteryMaxChargeModal";
 import AcOutputSourceModal from "@/components/AcOutputSourceModal";
 import ChargeSourceModal from "@/components/ChargeSourceModal";
+import LiveSourceBadge from "@/components/LiveSourceBadge";
+import { useLiveDeviceStatus } from "@/service/live";
 
 const Dashboard = () => {
+    useLiveDeviceStatus();
+
     return (
         <main className="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 min-h-screen h-screen w-screen flex md:items-center md:justify-center overflow-y-auto md:overflow-hidden relative">
             {/* Ambient glow orbs */}
@@ -15,6 +19,7 @@ const Dashboard = () => {
                 <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-violet-400/10 dark:bg-violet-500/8 rounded-full blur-3xl" />
             </div>
             <ActionButton />
+            <LiveSourceBadge />
             <BatteryMaxChargeModal />
             <AcOutputSourceModal />
             <ChargeSourceModal />
