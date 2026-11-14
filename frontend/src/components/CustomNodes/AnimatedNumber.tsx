@@ -1,8 +1,9 @@
 import { animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { nextTween, NUMBER_TWEEN_MS } from "@/lib/tween";
 
 type ChangeState = "increased" | "decreased" | null;
-const transitionDuration = 1000;
+const transitionDuration = NUMBER_TWEEN_MS;
 
 // Component to animate number changes with fixed duration
 const AnimatedNumber = ({
@@ -16,6 +17,8 @@ const AnimatedNumber = ({
 }) => {
     const [displayValue, setDisplayValue] = useState(value);
     const prevValueRef = useRef(value);
+    // What's on screen right now; a new value animates from here, not from the old target.
+    const displayedRef = useRef(value);
 
     // Track previous value and change state for color animations
     const prevValueForChangeRef = useRef<number | null>(null);
@@ -58,11 +61,12 @@ const AnimatedNumber = ({
 
     useEffect(() => {
         if (prevValueRef.current !== value) {
-            const startValue = prevValueRef.current;
-            const controls = animate(startValue, value, {
-                duration: transitionDuration / 1000, // Convert to seconds
+            const tween = nextTween(displayedRef.current, value);
+            const controls = animate(tween.from, tween.to, {
+                duration: tween.durationMs / 1000, // Convert to seconds
                 ease: "easeOut",
                 onUpdate: (latest) => {
+                    displayedRef.current = latest;
                     setDisplayValue(latest);
                 },
             });
