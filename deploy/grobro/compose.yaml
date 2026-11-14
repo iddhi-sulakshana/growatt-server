@@ -1,0 +1,109 @@
+# GroBro stack for Dokploy: Mosquitto (TLS 7006 for the dongles, 1883 with logins) and a
+# patched GroBro that relays readings to the Growatt cloud at most every
+# GROWATT_CLOUD_DATA_INTERVAL seconds while the local feed stays real-time.
+# Dokploy env provides: BROKER_IP, DONGLE_SERIALS, GROBRO_MQTT_PASS, READER_MQTT_PASS,
+# and optionally GROWATT_CLOUD_DATA_INTERVAL (default 300; 0 relays every reading).
+services:
+  init:
+    image: eclipse-mosquitto:2.0.20
+    environment:
+      BROKER_IP: ${BROKER_IP}
+      DONGLE_SERIALS: ${DONGLE_SERIALS}
+      GROBRO_MQTT_PASS: ${GROBRO_MQTT_PASS}
+      READER_MQTT_PASS: ${READER_MQTT_PASS}
+    volumes:
+      - mosquitto-config:/out
+    configs:
+      - source: init_script
+        target: /init.sh
+    entrypoint: ["sh", "/init.sh"]
+    restart: "no"
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - "7006:7006" # TLS, the Growatt dongle(s)
+      - "1883:1883" # plain with login: GroBro, backend, read-only tools
+    volumes:
+      - mosquitto-config:/mosquitto/config:ro
+    restart: unless-stopped
+
+  grobro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mosquitto
+    environment:
+      SOURCE_MQTT_HOST: mosquitto
+      SOURCE_MQTT_PORT: "1883"
+      SOURCE_MQTT_USER: grobro
+      SOURCE_MQTT_PASS: ${GROBRO_MQTT_PASS}
+      TARGET_MQTT_HOST: mosquitto
+      TARGET_MQTT_PORT: "1883"
+      # Relay to mqtt.growatt.com:7006 so the Growatt portal/app and their settings keep working.
+      GROWATT_CLOUD: "true"
+      GROWATT_CLOUD_DATA_INTERVAL: ${GROWATT_CLOUD_DATA_INTERVAL:-300}
+      LOG_LEVEL: INFO
+      DEVICE_TIMEOUT: "300"
+    restart: unless-stopped
+
+volumes:
+  mosquitto-config:
+
+configs:
+  init_script:
+    content: |
+      set -eu
+      mkdir -p /out/certs
+      cd /out/certs
+      if [ ! -f server.pem ] || [ "$$(cat ip 2>/dev/null)" != "$$BROKER_IP" ]; then
+        apk add --no-cache openssl >/dev/null
+        openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -sha256 -subj "/CN=GroBro Local CA" -keyout ca.key -out ca.pem -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign"
+        openssl req -newkey rsa:2048 -nodes -subj "/CN=$$BROKER_IP" -keyout server.key -out server.csr
+        printf 'subjectAltName=IP:%s\nbasicConstraints=CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n' "$$BROKER_IP" > server.ext
+        openssl x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial -days 3650 -sha256 -extfile server.ext -out server.pem
+        cat server.pem ca.pem > server-chain.pem
+        rm -f server.csr server.ext
+        echo "$$BROKER_IP" > ip
+        echo "generated certificate for $$BROKER_IP"
+      fi
+      cd /out
+      cat > mosquitto.conf <<'EOF'
+      persistence false
+      log_dest stdout
+      log_type error
+      log_type warning
+      log_type notice
+      log_type information
+      log_timestamp_format %Y-%m-%dT%H:%M:%S
+      connection_messages true
+      allow_anonymous false
+      password_file /mosquitto/config/passwd
+      acl_file /mosquitto/config/acl
+      listener 1883
+      listener 7006
+      cafile /mosquitto/config/certs/ca.pem
+      certfile /mosquitto/config/certs/server-chain.pem
+      keyfile /mosquitto/config/certs/server.key
+      EOF
+      cat > acl <<'EOF'
+      # Dongles log in with username = datalogger serial, password "Growatt".
+      pattern write c/33/%u
+      pattern read s/33/%u
+      user grobro
+      topic readwrite #
+      user reader
+      topic read homeassistant/#
+      EOF
+      umask 077
+      : > passwd
+      for sn in $$(echo "$$DONGLE_SERIALS" | tr ',' ' '); do mosquitto_passwd -b passwd "$$sn" Growatt; done
+      mosquitto_passwd -b passwd grobro "$$GROBRO_MQTT_PASS"
+      mosquitto_passwd -b passwd reader "$$READER_MQTT_PASS"
+      chown -R 1883:1883 /out
+      chmod 600 passwd acl certs/ca.key certs/server.key
+      echo "mosquitto config ready"
