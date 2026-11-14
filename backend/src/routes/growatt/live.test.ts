@@ -116,6 +116,36 @@ test("a closed client stops polling and unsubscribes", async () => {
     expect(store.subscriberCount()).toBe(0);
 });
 
+test("slow cloud refreshes never overlap, even with several clients", async () => {
+    const store = new LiveStatusStore();
+    let inFlight = 0;
+    let maxInFlight = 0;
+    let calls = 0;
+    const handler = createLiveStreamHandler({
+        store,
+        fallbackPollMs: 20,
+        refresh: async () => {
+            calls++;
+            inFlight++;
+            maxInFlight = Math.max(maxInFlight, inFlight);
+            await sleep(100);
+            inFlight--;
+        },
+    });
+    const app = express();
+    app.get("/live", handler);
+    server = app.listen(0);
+    await new Promise((resolve) => server!.once("listening", resolve));
+    const { port } = server.address() as AddressInfo;
+    const a = await fetch(`http://127.0.0.1:${port}/live`);
+    const b = await fetch(`http://127.0.0.1:${port}/live`);
+    await sleep(260);
+    expect(maxInFlight).toBe(1);
+    expect(calls).toBeLessThanOrEqual(3); // one shared poller, not one per client
+    await a.body!.cancel();
+    await b.body!.cancel();
+});
+
 beforeEach(() => liveStatusStore.reset());
 
 test("device-status answers from fresh GroBro data without calling the cloud", async () => {

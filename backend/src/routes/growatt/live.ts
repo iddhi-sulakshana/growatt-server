@@ -17,6 +17,36 @@ export function createLiveStreamHandler(deps: {
 }): RequestHandler {
     const { store, refresh, coalesceMs = 500, heartbeatMs = 15_000, fallbackPollMs = 5_000 } = deps;
 
+    // One cloud poller shared by every open stream, running only while at least one is
+    // open, with at most one refresh in flight: the Growatt client handles one request at
+    // a time, and overlapping refreshes would queue up behind a slow cloud.
+    let clients = 0;
+    let refreshing = false;
+    let poller: ReturnType<typeof setInterval> | null = null;
+    const pollCloud = () => {
+        if (refreshing || store.isLive()) return;
+        refreshing = true;
+        refresh()
+            .catch((error) =>
+                winston.warn(`Live stream: cloud refresh failed: ${error?.message ?? error}`)
+            )
+            .finally(() => {
+                refreshing = false;
+            });
+    };
+    const acquirePoller = () => {
+        clients++;
+        if (!poller) poller = setInterval(pollCloud, fallbackPollMs);
+    };
+    const releasePoller = () => {
+        clients--;
+        if (clients <= 0 && poller) {
+            clearInterval(poller);
+            poller = null;
+            clients = 0;
+        }
+    };
+
     return (_req, res) => {
         res.status(200);
         res.setHeader("Content-Type", "text/event-stream");
@@ -40,19 +70,15 @@ export function createLiveStreamHandler(deps: {
             if (!closed) res.write(": ping\n\n");
         }, heartbeatMs);
 
-        const fallback = setInterval(() => {
-            if (closed || store.isLive()) return;
-            refresh().catch((error) =>
-                winston.warn(`Live stream: cloud refresh failed: ${error?.message ?? error}`)
-            );
-        }, fallbackPollMs);
+        acquirePoller();
 
         // res "close", not req "close": on Node-compatible runtimes the request emits
         // "close" as soon as its (empty) body is read, which would end the stream at once.
         res.on("close", () => {
+            if (closed) return;
             closed = true;
             clearInterval(heartbeat);
-            clearInterval(fallback);
+            releasePoller();
             coalescer.stop();
             unsubscribe();
         });
