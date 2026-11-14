@@ -1,6 +1,8 @@
 import { configLogger, ENV } from "./configs";
 import initializeServer from "./server";
 import { growatt } from "./services/growatt-instance";
+import { liveStatusStore } from "./services/grobro/live-store";
+import { startGroBroSubscriber } from "./services/grobro/subscriber";
 
 async function main() {
     ENV.configEnvironment();
@@ -8,6 +10,14 @@ async function main() {
 
     // Initialize the Redis client
     // redis.createRedisClient();
+
+    // Local live data from GroBro (optional; the cloud stays the fallback)
+    const grobroClient = startGroBroSubscriber(liveStatusStore);
+    logger.info(
+        grobroClient
+            ? "GroBro: local live data enabled"
+            : "GroBro: local live data disabled (GROBRO_* env not set)"
+    );
 
     // Initialize Growatt connection
     logger.info("Initializing Growatt connection...");
