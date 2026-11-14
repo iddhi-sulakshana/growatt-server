@@ -3,6 +3,7 @@ import queryClient from "@/lib/QueryClient";
 import { useAuthStore } from "@/lib/AuthStore";
 import { useLiveConnectionStore } from "@/lib/LiveConnectionStore";
 import { nextBackoffMs, parseSseChunk, shouldLogoutOnStatus } from "@/lib/sse";
+import { createWatchdog, STREAM_SILENCE_TIMEOUT_MS } from "@/lib/live-status";
 import type { DeviceStatusData } from "@/types/growatt";
 
 /**
@@ -28,10 +29,18 @@ export function useLiveDeviceStatus(): void {
         };
 
         const connect = async () => {
+            // Per-connection abort, also fired by the effect's cleanup. The watchdog aborts
+            // a connection that has gone silent (no event or heartbeat for 45 s), e.g. a
+            // half-open socket after sleep, so it reconnects instead of freezing.
+            const connection = new AbortController();
+            const abortConnection = () => connection.abort();
+            controller.signal.addEventListener("abort", abortConnection, { once: true });
+            const watchdog = createWatchdog(STREAM_SILENCE_TIMEOUT_MS, abortConnection);
+            watchdog.reset();
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/growatt/live`, {
                     headers: { Authorization: `Bearer ${token}` },
-                    signal: controller.signal,
+                    signal: connection.signal,
                 });
                 if (shouldLogoutOnStatus(response.status)) {
                     setConnected(false);
@@ -49,6 +58,7 @@ export function useLiveDeviceStatus(): void {
                 for (;;) {
                     const { value, done } = await reader.read();
                     if (done) break;
+                    watchdog.reset();
                     buffer += decoder.decode(value, { stream: true });
                     const { events, rest } = parseSseChunk(buffer);
                     buffer = rest;
@@ -72,6 +82,9 @@ export function useLiveDeviceStatus(): void {
                 scheduleReconnect();
             } catch {
                 scheduleReconnect();
+            } finally {
+                watchdog.stop();
+                controller.signal.removeEventListener("abort", abortConnection);
             }
         };
 
