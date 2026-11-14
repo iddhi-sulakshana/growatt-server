@@ -1,0 +1,62 @@
+# The dashboard for the shop LAN, deployed by Dokploy on shadowserver (project "growatt").
+# Opened at http://growatt.lan (router DNS entry → 192.168.1.157, routed by Dokploy's Traefik),
+# with http://192.168.1.157:8082 as a fallback.
+#
+# Only `web` publishes a port. nginx in it serves the built SPA and proxies /api/ to the
+# backend, so the app and its API share one origin.
+#
+# Dokploy's environment only feeds ${...} interpolation here; nothing reaches a container
+# unless this file maps it. Secrets use ${VAR:?...} so a missing one fails `up` by name.
+
+name: growatt-prod
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      GROWATT_SERVER: ${GROWATT_SERVER:-https://server.growatt.com}
+      GROWATT_USERNAME: ${GROWATT_USERNAME:?GROWATT_USERNAME is required (Growatt portal login)}
+      GROWATT_PASSWORD: ${GROWATT_PASSWORD:?GROWATT_PASSWORD is required (Growatt portal password)}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required, 32+ chars}
+      # Validated at boot but unused by the code today: login is hard-coded in
+      # routes/auth/service.ts, and the Postgres/Redis connections are commented out in
+      # index.ts. The URLs only have to parse; nothing connects to them.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-unused}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://unused:unused@127.0.0.1:5432/unused}
+      REDIS_URL: ${REDIS_URL:-redis://127.0.0.1:6379}
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      # Fallback alongside the Traefik route: http://192.168.1.157:8082 works even
+      # without the growatt.lan DNS entry. (8081 is the store app's.)
+      - "${GROWATT_WEB_PORT:-8082}:80"
+    networks:
+      # dokploy-network is where Dokploy's Traefik looks for containers; `default` keeps
+      # nginx able to reach the backend.
+      - default
+      - dokploy-network
+    depends_on:
+      backend:
+        condition: service_started
+    healthcheck:
+      # 127.0.0.1, not localhost: busybox wget tries ::1 first and nginx listens on IPv4.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  # Created and owned by Dokploy. Outside Dokploy, create it once first:
+  # docker network create dokploy-network
+  dokploy-network:
+    external: true
