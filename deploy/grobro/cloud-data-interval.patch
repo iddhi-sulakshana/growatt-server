@@ -1,0 +1,75 @@
+--- a/grobro/grobro/client.py	2026-11-14 12:54:35
++++ b/grobro/grobro/client.py	2026-11-14 12:54:53
+@@ -9,6 +9,7 @@
+ import struct
+ import logging
+ import ssl
++import time
+ from typing import Callable
+ 
+ 
+@@ -66,6 +67,11 @@
+     GROWATT_CLOUD_ENABLED = False
+     GROWATT_CLOUD_FILTER = set()
+ 
++# Relay readings to Growatt Cloud at most once every this many seconds per device (0 = all).
++# Readings are the Modbus functions below; every other message is relayed at once.
++GROWATT_CLOUD_DATA_INTERVAL = int(os.getenv("GROWATT_CLOUD_DATA_INTERVAL", "0"))
++CLOUD_THROTTLED_FUNCTIONS = {0x04}
++
+ DUMP_MESSAGES = os.getenv("DUMP_MESSAGES", "false").lower() == "true"
+ PUBLISH_SENSORS_RETAINED = os.getenv("PUBLISH_SENSORS_RETAINED", "False").lower() == "true"
+ DUMP_DIR = os.getenv("DUMP_DIR", "/dump")
+@@ -115,6 +121,7 @@
+         self._client.on_connect = self.__on_connect
+         self._forward_mqtt_config = forward_mqtt
+         self._ptq_for_raq: dict[str, str] = {}
++        self._cloud_data_sent_at: dict[str, float] = {}
+ 
+     def start(self):
+         LOG.debug("GroBro: Start")
+@@ -215,6 +222,20 @@
+     def __on_connect(self, client, userdata, flags, reason_code, properties):
+       LOG.debug(f"Connected to GroBro MQTT server with result code {reason_code}")
+       self._client.subscribe("c/#")      
++
++    def __cloud_data_due(self, device_id: str, payload: bytes) -> bool:
++        """Whether this message should go to Growatt Cloud now (see GROWATT_CLOUD_DATA_INTERVAL)."""
++        # The Modbus function is the low byte of the message type, in the unscrambled header.
++        if GROWATT_CLOUD_DATA_INTERVAL <= 0 or len(payload) < 8:
++            return True
++        if payload[7] not in CLOUD_THROTTLED_FUNCTIONS:
++            return True
++        now = time.monotonic()
++        sent_at = self._cloud_data_sent_at.get(device_id)
++        if sent_at is not None and now - sent_at < GROWATT_CLOUD_DATA_INTERVAL:
++            return False
++        self._cloud_data_sent_at[device_id] = now
++        return True
+ 
+     def __on_message(self, client, userdata, msg: MQTTMessage):
+         # check for forwarded messages and ignore them
+@@ -249,13 +270,16 @@
+                                 )
+                                 return
+ 
+-                        forward_client = self.__connect_to_growatt_server(device_id)
+-                        forward_client.publish(
+-                            msg.topic,
+-                            payload=msg.payload,
+-                            qos=msg.qos,
+-                            retain=msg.retain,
+-                        )
++                        if self.__cloud_data_due(device_id, msg.payload):
++                            forward_client = self.__connect_to_growatt_server(device_id)
++                            forward_client.publish(
++                                msg.topic,
++                                payload=msg.payload,
++                                qos=msg.qos,
++                                retain=msg.retain,
++                            )
++                        else:
++                            LOG.debug("Holding back reading for %s from Growatt Cloud", device_id)
+                     except Exception as e:
+                         LOG.error(f"Forwarding to Growatt Cloud failed: {e}")
+ 
