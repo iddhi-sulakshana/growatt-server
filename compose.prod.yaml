@@ -29,6 +29,12 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-unused}
       DATABASE_URL: ${DATABASE_URL:-postgresql://unused:unused@127.0.0.1:5432/unused}
       REDIS_URL: ${REDIS_URL:-redis://127.0.0.1:6379}
+      # Live data from GroBro on the shop broker (Dokploy compose "grobro"). Optional:
+      # left empty, the dashboard uses the Growatt cloud only.
+      GROBRO_MQTT_URL: ${GROBRO_MQTT_URL:-}
+      GROBRO_MQTT_USERNAME: ${GROBRO_MQTT_USERNAME:-}
+      GROBRO_MQTT_PASSWORD: ${GROBRO_MQTT_PASSWORD:-}
+      GROBRO_DEVICE: ${GROBRO_DEVICE:-}
 
   web:
     build:
