@@ -11,8 +11,10 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
 COPY . .
-# winston writes ./logs/*.log relative to the working directory.
-RUN mkdir -p logs && chown -R bun:bun /app
+# winston writes ./logs/*.log relative to the working directory; nothing else is written.
+# Only that directory changes owner: a recursive chown of /app would copy all of
+# node_modules into a new layer (about a minute on the shop server, and twice the size).
+RUN mkdir -p logs && chown bun:bun logs
 USER bun
 
 EXPOSE 3000
