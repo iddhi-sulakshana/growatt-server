@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { animate } from "framer-motion";
+import { getDeviceStatusService } from "@/service/growatt";
+import { formatUpdatedAt } from "@/lib/time";
 
 const ClockNode = () => {
+    const { data: deviceStatus } = getDeviceStatusService();
+    const updatedAt = formatUpdatedAt(deviceStatus?.data?.updatedAt);
     const [time, setTime] = useState(new Date());
     const [date, setDate] = useState(new Date());
 
@@ -69,6 +73,14 @@ const ClockNode = () => {
                     date
                 )}
             </div>
+            {updatedAt && (
+                <div
+                    className="mt-1 text-[10px] font-mono text-slate-500 dark:text-slate-400"
+                    title="When the dashboard last received a reading"
+                >
+                    Updated {updatedAt}
+                </div>
+            )}
         </div>
     );
 };
