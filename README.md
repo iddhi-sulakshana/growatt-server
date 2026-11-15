@@ -1,6 +1,37 @@
+<p align="center">
+  <img src="docs/social-preview.svg" width="100%" alt="growatt-server: your Growatt inverter, live, on your own dashboard. Readings every second, locally; the Growatt cloud still gets one every 5 minutes.">
+</p>
+
 # Growatt Server
 
 A robust TypeScript backend service designed to interact with Growatt solar monitoring servers. This project provides a centralized API for accessing plant data, device information, historical metrics, weather updates, and fault logs from Growatt's monitoring platform. Built with Express.js, it offers a secure and efficient way to integrate Growatt data into your applications, utilizing PostgreSQL for data persistence and Drizzle ORM for database interactions.
+
+## See it live
+
+The dashboard draws the inverter's power flow as it happens. Readings come from the Shine WiFi-F Pro dongle through [GroBro](deploy/grobro/README.md) about once a second, and the badge in the corner says whether they are live, stale or from the Growatt cloud.
+
+<p align="center">
+  <img src="docs/live.gif" width="540" alt="The live power flow: Solar 1 and Solar 2 gauges feeding the inverter, grid on standby, consumption and the battery's voltage and power, with the numbers and the flowing lines updating about twice a second, the Live badge, and the clock with the last reading's time to the millisecond">
+  <img src="docs/phone-live.gif" width="249" alt="The same live dashboard on a phone in dark mode: the power flow on top and the daily and total energy cards below">
+</p>
+
+Light and dark themes:
+
+<p align="center">
+  <img src="docs/dashboard-light.png" width="400" alt="The dashboard in light mode: the power flow on the left and four cards on the right for solar output, battery discharging, energy imported from the grid and load consumption, each with today's and the total figure">
+  <img src="docs/dashboard-dark.png" width="400" alt="The same dashboard in dark mode">
+</p>
+
+Click the battery or the inverter to change its settings. The dialog first reads the current value from the inverter:
+
+<p align="center">
+  <img src="docs/settings.gif" width="640" alt="A cursor clicks the battery icon and the Set Battery Charging Max dialog opens with the current value, 25, highlighted among the presets 1 to 100, a custom value field and Set Charge Source">
+</p>
+
+<p align="center">
+  <img src="docs/battery-settings.png" width="400" alt="The Set Battery Charging Max dialog over the blurred dashboard: current value 25, preset buttons, a custom value field and Set Charge Source">
+  <img src="docs/analytics.png" width="400" alt="The Analytics page: a date range, toggles for each measurement, and a chart of today's output power with PV 1 and PV 2 power rising through the morning">
+</p>
 
 ---
 
@@ -10,6 +41,7 @@ This server aims to simplify and centralize access to your Growatt solar data wi
 
 *   🔐 **Authentication**: Secure login/logout mechanisms with session management for Growatt and the API itself.
 *   🌱 **Plant Management**: Retrieve lists of all registered plants and detailed information for specific plants.
+*   ⚡ **Live Data**: Readings straight from the inverter's Wi-Fi dongle about once a second, through [GroBro](deploy/grobro/README.md), while the Growatt cloud still gets one every 5 minutes.
 *   📊 **Device Data**: Access real-time and historical data for various devices within your solar plants.
 *   📈 **Historical Data**: Fetch historical power generation, consumption, and other metrics.
 *   ☀️ **Weather Information**: Integrate weather data relevant to your plant locations.
